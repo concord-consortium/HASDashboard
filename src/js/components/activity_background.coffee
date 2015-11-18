@@ -1,13 +1,15 @@
 require '../../css/activity_background.styl'
-$ = require '../vendor/jquery.min.js'
 
+$     = require '../vendor/jquery.min.js'
 React = require('react')
+
 {h1, iframe, div} = React.DOM
 
 ActivityBackround = React.createClass
 
   getDefaultProps: ->
     activityId: 3857
+    authoringUrl: "http://authoring.concord.org/activities/"
 
   scrollIframe: (e) ->
     console.log e
@@ -18,7 +20,7 @@ ActivityBackround = React.createClass
     $(document).scroll  @scrollIframe
 
   render: ->
-    src = "http://authoring.concord.org/activities/#{@props.activityId}/"
+    src = "#{@props.authoringUrl}#{@props.activityId}/"
 
     (div {className: "iframeBG"},
       (div {className: "iframeContainer", ref: 'overlay'},

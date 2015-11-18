@@ -13,3 +13,42 @@ vertical()
   -moz-transform-origin: top right;
   -o-transform-origin: top right;
   transform-origin: top right;
+
+animatedSlide(delay=200ms)
+  transition-duration delay
+  transition-timing-function ease-in
+
+right-openable(x, delta)
+  animatedSlide()
+  position fixed
+  right x
+  &.open
+    right (x + delta)
+
+top-openable(y, delta)
+  animatedSlide()
+  position fixed
+  top y
+  &.open
+    top (y + delta)
+
+overlay(x=1px, y=-2px, spread=2px)
+  box-sizing border-box
+  background-color hsl(187,45,58)
+  position fixed
+  opacity 0.99
+  z-index 10
+  padding 0.5em
+  box-shadow x y spread hsla(0,0,0,0.5)
+
+bubbleBox(color=white,spacing=10px, radius=6px)
+  box-sizing border-box
+  background-color color
+  position absolute
+  margin 0px
+  padding spacing
+  left    spacing
+  right   spacing
+  top     spacing
+  bottom  spacing
+  radius(radius, radius, radius, radius)

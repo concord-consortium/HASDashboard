@@ -9,16 +9,37 @@ ReportOverlay     = React.createFactory require './report_overlay.coffee'
 
 App = React.createClass
 
-  getDefaultProps: ->
+  getInitialState: ->
     activityId: 3857
+    showReport: false
+    showNav: false
+    reportData: {}
+    navData: {}
+
+  toggleReport: ->
+    @setState
+      showReport: (not @state.showReport)
+
+  toggleNav: ->
+    @setState
+      showNav: (not @state.showNav)
 
   render: ->
-    src = "http://authoring.concord.org/activities/#{@props.activityId}/"
 
     (div {className: "app"},
-      (ActivityBackround {})
-      (ReportOverlay {})
-      (NavOverlay {})
+      (ActivityBackround
+        activityId: @state.activityId
+      )
+      (ReportOverlay
+        opened: @state.showReport
+        toggle: @toggleReport
+        data: @state.reportData
+      )
+      (NavOverlay
+        opened: @state.showNav
+        toggle: @toggleNav
+        data: @state.navData
+      )
     )
 
 

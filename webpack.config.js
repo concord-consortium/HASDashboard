@@ -1,5 +1,6 @@
 module.exports = {
   entry: "./src/js/main.coffee",
+  devtool: "#cheap-module-eval-source-map",
   output: {
     path: "./build/assets/",
     publicPath: "/public/assets/js/",
