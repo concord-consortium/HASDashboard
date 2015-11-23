@@ -1,9 +1,11 @@
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+
 module.exports = {
   entry: "./src/js/main.coffee",
   devtool: "#cheap-module-eval-source-map",
   output: {
-    path: "./build/assets/",
-    publicPath: "/public/assets/js/",
+    path: "./dist/",
+    publicPath: "/public/",
     filename: 'main.js'
   },
   module: {
@@ -15,7 +17,20 @@ module.exports = {
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' } // inline base64 URLs for <=8k images, direct URLs for the rest
     ]
-  }
+  },
+  plugins: [
+      new CopyWebpackPlugin([
+          // File examples
+          { from: 'public/index.html' },
+          { from: 'public/robots.txt' },
+          { from: 'public/humans.txt' },
+          { from: 'public/browserconfig.xml' },
+          { from: 'public/tile.png' },
+          { from: 'public/tile-wide.png' },
+          { from: 'public/apple-touch-icon.png' },
+          { from: 'public/favicon.ico' }
+      ])
+  ]
 };
 
 /*
