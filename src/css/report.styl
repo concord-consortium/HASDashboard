@@ -1,4 +1,65 @@
 @require 'mixins'
 
+score_color(n)
+  font-weight bold
+  color hsl((n - 1) * 30, 100%, 80%)
+
+selectable_row(hue)
+  tr:nth-child(2n)
+    background-color hsl(hue,45,95)
+
+  tr
+    &.selectable
+      &:hover
+        cursor pointer
+        background-color hsl(hue,20,85)
+
 .report
   bubbleBox()
+
+table
+  color black
+  color hsl(187,45,58)
+  font-size 14px
+  text-align right
+  width 80%
+  margin-left auto
+  margin-right auto
+  selectable_row(187)
+
+
+  th
+    font-weight 800
+    text-align right
+    padding 0.25em 1em
+
+  td
+    font-weight 400
+    text-align right
+    padding 0.25em 1em
+
+  .marker
+    box-sizing border-box
+    radius(1em)
+    width 2em
+    height 2em
+    text-align center
+
+    &.complete
+      background-color hsl(187,18,40)
+      background-color hsl(187,18,40)
+
+    &.incomplete
+      background-color white
+      border 2px solid hsla(187,18,40,0.5)
+
+    .score_1
+      score_color(1)
+    .score_2
+      score_color(2)
+    .score_3
+      score_color(3)
+    .score_4
+      score_color(4)
+    .score_5
+      score_color(5)
