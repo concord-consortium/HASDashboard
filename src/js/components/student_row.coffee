@@ -3,20 +3,24 @@ _          = require 'lodash'
 
 {div, span, tr, th, td} = React.DOM
 
+noAnswer = ->
+  [
+    {number: "10", completed: false, score: false}
+    {number: "11", completed: false, score: false}
+    {number: "12", completed: false, score: false}
+    {number: "13", completed: false, score: false}
+  ]
 StudentRow = React.createClass
   getDefaultProps: ->
-    teamName: "No Name", answers: [
-      {number: "10", completed: true, score: false}
-      {number: "11", completed: true, score: 4}
-      {number: "12", completed: true, score: false}
-      {number: "13", completed: true, score: 4}
-    ],
-    tries: 0
+    data:
+      teamName: "No Name", answers: [[ noAnswer() ]]
 
   render: ->
+    data = @props.data
+    lastAnswer = _.last(data.answers) or noAnswer()
     (tr {onClick: @props.onClick, className: "student_row selectable"},
-      (th {}, @props.teamName),
-      _.map @props.answers, (a) ->
+      (th {}, data.teamName),
+      _.map lastAnswer, (a) ->
         if a.completed
           className = "marker complete"
         else
@@ -28,7 +32,7 @@ StudentRow = React.createClass
         (td {},
           (div {className: className}, score)
         )
-      (td {}, @props.tries)
+      (td {}, data.answers.length)
     )
 
 

@@ -12,7 +12,7 @@ Report = React.createClass
     students: Students
 
   render: ->
-    answers = @props.students[0].answers
+    answers = @props.students[0].answers[0]
     headerData = _.map answers, (answer) -> answer.number
     className = "report"
     className = "#{className} hidden-left" if @props.hidden
@@ -36,9 +36,7 @@ Report = React.createClass
         )
         _.map @props.students, (student) =>
           (StudentRow
-            teamName: student.teamName
-            answers: student.answers
-            tries: student.tries
+            data: student
             onClick: @props.clickStudent
           )
       )
