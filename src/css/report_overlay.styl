@@ -1,7 +1,7 @@
 @require 'mixins'
 
 reportHeight = 100%
-reportWidth  = 600px
+reportWidth  = 70%
 
 .report_overlay
   color white
@@ -15,7 +15,7 @@ reportWidth  = 600px
     vertical()
     radius(0px 0px 6px 6px)
     top reportHeight * 0.5
-    right-openable(0px, reportWidth)
+    right-openable(0%, reportWidth)
 
   .content
     overlay(x:2px, y:2px)
@@ -24,3 +24,4 @@ reportWidth  = 600px
     width reportWidth
     height reportHeight
     radius(0px 0px 6px 6px)
+    overflow hidden

@@ -14,15 +14,33 @@ Report = React.createClass
   render: ->
     answers = @props.students[0].answers
     headerData = _.map answers, (answer) -> answer.number
-    (div {className: "report"},
+    className = "report"
+    className = "#{className} hidden-left" if @props.hidden
+    (div {className: className},
       (table {},
         (tr {},
-          (th {}, (div {}, ""))
+          (th {}, "")
+          (th
+            colSpan: 4
+            style:
+              "text-align": "center"
+              "font-size": "1.2em"
+            , "Questions")
+          (th {}, "")
+        )
+        (tr {},
+          (td {}, (div {}, ""))
           _.map headerData, (h) ->
             (th {}, (div {className: 'marker'}, h))
+          (th {}, "# tries")
         )
-        _.map @props.students, (student) ->
-          (StudentRow {teamName: student.teamName, answers: student.answers})
+        _.map @props.students, (student) =>
+          (StudentRow
+            teamName: student.teamName
+            answers: student.answers
+            tries: student.tries
+            onClick: @props.clickStudent
+          )
       )
     )
 

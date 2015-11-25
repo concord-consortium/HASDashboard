@@ -5,15 +5,16 @@ _          = require 'lodash'
 
 StudentRow = React.createClass
   getDefaultProps: ->
-    teamName: "Sue & Jim", answers: [
+    teamName: "No Name", answers: [
       {number: "10", completed: true, score: false}
       {number: "11", completed: true, score: 4}
       {number: "12", completed: true, score: false}
       {number: "13", completed: true, score: 4}
-    ]
+    ],
+    tries: 0
 
   render: ->
-    (tr {className: "student_row selectable"},
+    (tr {onClick: @props.onClick, className: "student_row selectable"},
       (th {}, @props.teamName),
       _.map @props.answers, (a) ->
         if a.completed
@@ -27,6 +28,7 @@ StudentRow = React.createClass
         (td {},
           (div {className: className}, score)
         )
+      (td {}, @props.tries)
     )
 
 

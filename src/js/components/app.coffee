@@ -13,16 +13,27 @@ App = React.createClass
     activityId: 3857
     showReport: false
     showNav: false
+    showDetails: false
     reportData: {}
     navData: {}
 
   toggleReport: ->
+    showReportNext = not @state.showReport
+    showNavNext    = @state.showNav and (not showReportNext)
     @setState
-      showReport: (not @state.showReport)
+      showReport: showReportNext
+      showNav: showNavNext
 
   toggleNav: ->
+    showNavNext    = not @state.showNav
+    showReportNext = @state.showReport and (not showNavNext)
     @setState
-      showNav: (not @state.showNav)
+      showReport: showReportNext
+      showNav: showNavNext
+
+  toggleDetails: ->
+    @setState
+      showDetails: (not @state.showDetails)
 
   render: ->
 
@@ -33,6 +44,8 @@ App = React.createClass
       (ReportOverlay
         opened: @state.showReport
         toggle: @toggleReport
+        toggleDetails: @toggleDetails
+        showDetails: @state.showDetails
         data: @state.reportData
       )
       (NavOverlay
