@@ -10,15 +10,20 @@ noAnswer = ->
     {number: "12", completed: false, score: false}
     {number: "13", completed: false, score: false}
   ]
+
+
 StudentRow = React.createClass
   getDefaultProps: ->
     data:
       teamName: "No Name", answers: [[ noAnswer() ]]
 
+  doClick: (e) ->
+    @props.onClick e, @props.data
+
   render: ->
     data = @props.data
     lastAnswer = _.last(data.answers) or noAnswer()
-    (tr {onClick: @props.onClick, className: "student_row selectable"},
+    (tr {onClick: @doClick, className: "student_row selectable"},
       (th {}, data.teamName),
       _.map lastAnswer, (a) ->
         if a.completed

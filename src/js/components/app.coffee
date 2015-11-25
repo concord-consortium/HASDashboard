@@ -4,6 +4,7 @@ require '../../css/activity_background.styl'
 ActivityBackround = React.createFactory require './activity_background.coffee'
 NavOverlay        = React.createFactory require './nav_overlay.coffee'
 ReportOverlay     = React.createFactory require './report_overlay.coffee'
+Students          = require '../data/students.coffee'
 
 {h1, iframe, div} = React.DOM
 
@@ -14,7 +15,8 @@ App = React.createClass
     showReport: false
     showNav: false
     showDetails: false
-    reportData: {}
+    selectedStudent: null
+    students: Students
     navData: {}
 
   toggleReport: ->
@@ -31,8 +33,9 @@ App = React.createClass
       showReport: showReportNext
       showNav: showNavNext
 
-  toggleDetails: ->
+  toggleDetails: (e,student)->
     @setState
+      selectedStudent: student
       showDetails: (not @state.showDetails)
 
   render: ->
@@ -46,7 +49,7 @@ App = React.createClass
         toggle: @toggleReport
         toggleDetails: @toggleDetails
         showDetails: @state.showDetails
-        data: @state.reportData
+        data: @state
       )
       (NavOverlay
         opened: @state.showNav
