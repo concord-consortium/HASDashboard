@@ -1,4 +1,6 @@
 React = require 'react'
+$ = require 'jquery'
+
 require '../../css/activity_background.styl'
 
 ActivityBackround = React.createFactory require './activity_background.coffee'
@@ -10,14 +12,46 @@ Students          = require '../data/students.coffee'
 
 App = React.createClass
 
+  componentDidMount: ->
+    @setActivity(652)
+    @setOffering(3)
+
+  getDefaultProps: ->
+    # baseUrl: "http://authoring.concord.org/"
+    baseUrl: "http://localhost:3000"
+    offeringBase: "http://localhost:9000/api/v1/dashboard_reports/report.js?offering_id="
+
+  setOffering: (id) ->
+    setOffering = (data) =>
+      console.log data
+
+    $.ajax
+      url: "#{@props.offeringBase}#{id}"
+      dataType: "jsonp"
+      success: setOffering.bind(@)
+
+  setActivity: (id) ->
+    tocUrl  = "#{@props.baseUrl}/activities/#{id}/dashboard_toc"
+    setActivity = (activity) =>
+      first_page = activity.pages[0]
+      @setState
+        activity: activity
+        pageUrl: "#{@props.baseUrl}/#{first_page.url}"
+
+
+    $.ajax
+      url: tocUrl
+      dataType: "jsonp"
+      success: setActivity.bind(@)
+
   getInitialState: ->
-    activityId: 3857
+    pageUrl: "http://localhost:3000/activities/652"
     showReport: false
     showNav: false
     showDetails: false
     selectedStudent: null
     students: Students
-    navData: {}
+    activity: {}
 
   toggleReport: ->
     showReportNext = not @state.showReport
@@ -33,16 +67,20 @@ App = React.createClass
       showReport: showReportNext
       showNav: showNavNext
 
-  toggleDetails: (e,student)->
+  toggleDetails: (evt,student)->
     @setState
       selectedStudent: student
       showDetails: (not @state.showDetails)
+
+  setPage: (page_url) ->
+    @setState
+      pageUrl: "#{@props.baseUrl}/#{page_url}"
 
   render: ->
 
     (div {className: "app"},
       (ActivityBackround
-        activityId: @state.activityId
+        pageUrl: @state.pageUrl
       )
       (ReportOverlay
         opened: @state.showReport
@@ -54,7 +92,8 @@ App = React.createClass
       (NavOverlay
         opened: @state.showNav
         toggle: @toggleNav
-        data: @state.navData
+        activity: @state.activity
+        setPage: @setPage
       )
     )
 

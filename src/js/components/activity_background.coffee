@@ -8,8 +8,7 @@ React = require('react')
 ActivityBackround = React.createClass
 
   getDefaultProps: ->
-    activityId: 3857
-    authoringUrl: "http://authoring.concord.org/activities/"
+    pageUrl: "http://authoring.concord.org/activities/3857"
 
   scrollIframe: (e) ->
     console.log e
@@ -20,7 +19,7 @@ ActivityBackround = React.createClass
     $(document).scroll  @scrollIframe
 
   render: ->
-    src = "#{@props.authoringUrl}#{@props.activityId}/"
+    src = @props.pageUrl
 
     (div {className: "iframeBG"},
       (div {className: "iframeContainer", ref: 'overlay'},

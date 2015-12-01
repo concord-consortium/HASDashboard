@@ -14,7 +14,7 @@ Nav = React.createClass
     (div {className:"nav_overlay"},
       (div {className: @className("tab"), onClick: @props.toggle}, "TOC")
       (div {className: @className("content")},
-        (Toc {data: @props.data})
+        (Toc {activity: @props.activity, setPage: @props.setPage})
       )
     )
 
