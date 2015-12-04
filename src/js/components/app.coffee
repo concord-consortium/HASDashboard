@@ -13,7 +13,7 @@ Students          = require '../data/students.coffee'
 App = React.createClass
 
   componentDidMount: ->
-    @setActivity(652)
+    @setActivity(627)
     @setOffering(3)
 
   getDefaultProps: ->
@@ -22,8 +22,18 @@ App = React.createClass
     offeringBase: "http://localhost:9000/api/v1/dashboard_reports/report.js?offering_id="
 
   setOffering: (id) ->
-    setOffering = (data) =>
+    setOffering = (data) ->
       console.log data
+      if data.students
+        $.ajax
+          url: "#{@props.baseUrl}/runs/dashboard"
+          dataType: "jsonp"
+          method: "POST"
+          data:
+            students: data.students
+            baseUrl: "http://localhost:9000"
+          success: ->
+            debugger
 
     $.ajax
       url: "#{@props.offeringBase}#{id}"
