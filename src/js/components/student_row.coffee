@@ -24,10 +24,12 @@ StudentRow = React.createClass
     data = @props.data
     lastAnswer = _.last(data.answers) or noAnswer()
     (tr {onClick: @doClick, className: "student_row selectable"},
-      (th {}, data.teamName),
+      (th {className: "team_name"}, data.teamName),
       _.map lastAnswer, (a) ->
         if a.completed
           className = "marker complete"
+          if a.score
+            className += " " + "score_#{a.score}"
         else
           className = "marker incomplete"
         if a.score
@@ -37,7 +39,12 @@ StudentRow = React.createClass
         (td {},
           (div {className: className}, score)
         )
-      (td {}, data.answers.length)
+      (td {},
+        if data.answers.length < 1
+          (span {className: "tries none"}, '')
+        else
+          (span {className: "tries"}, data.answers.length)
+      )
     )
 
 

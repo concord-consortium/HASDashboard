@@ -28,8 +28,8 @@ Report = React.createClass
         (tr {},
           (td {}, (div {}, ""))
           _.map headerData, (h) ->
-            (th {}, (div {className: 'marker'}, h))
-          (th {}, "# tries")
+            (th {}, (div {className: 'question-number marker'}, h))
+          (th {}, "Tries")
         )
         _.map @props.students, (student) =>
           (StudentRow

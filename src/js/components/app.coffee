@@ -72,6 +72,11 @@ App = React.createClass
       selectedStudent: student
       showDetails: (not @state.showDetails)
 
+  toggleQuestionDetails: (evt,question)->
+    @setState
+      selectedQuestion: question
+      showQuestionDetails: (not @state.showQuestionDetails)
+
   setPage: (page_url) ->
     @setState
       pageUrl: "#{@props.baseUrl}/#{page_url}"

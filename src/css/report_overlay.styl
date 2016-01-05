@@ -1,15 +1,16 @@
 @require 'mixins'
 
 reportHeight = 100%
-reportWidth  = 70%
+reportWidth  = 50%
 
 .report_overlay
   color white
-  font-size 20px
-  font-weight bold
-  font-family helvetica, arial, sans-serif
+  font-size 1em
+  font-family 'Open Sans', helvetica, arial, sans-serif
 
   .tab
+    cursor pointer
+    font-size 1.25em
     overlay(x:2px, y:2px)
     overlay()
     vertical()
@@ -18,10 +19,11 @@ reportWidth  = 70%
     right-openable(0%, reportWidth)
 
   .content
+    border-left solid 5px hsl(210,76,36)
     overlay(x:2px, y:2px)
     right-openable(- reportWidth, reportWidth)
     top 0
     width reportWidth
     height reportHeight
-    radius(0px 0px 6px 6px)
+    radius(0px 0px 0 0)
     overflow hidden

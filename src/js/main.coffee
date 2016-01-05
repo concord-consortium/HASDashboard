@@ -9,5 +9,6 @@ React = require 'react'
 App = React.createFactory require './components/app.coffee'
 
 $(document).ready (event) ->
+
   elm = $('#app')[0]
   React.render(App({}), elm)
