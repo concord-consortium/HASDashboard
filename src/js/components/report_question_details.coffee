@@ -6,40 +6,13 @@ ReportQuestionDetails = React.createClass
 
   getDefaultProps: ->
     data:
-      teamName: "no team"
-      answers: []
-      try: 1
+      number: "0"
+      prompt: "No Question"
+      answers: []  # {team, score, completed, answer}
 
   render: ->
     className = "report_question_details"
-    className = "#{className} hidden-right" if @props.hidden
-    teamName = @props.data?.teamName || 'No Team'
-    answers = ''
-    console.log('hi ' + @props)
-    try_count = 0
-
-    renderQuestion = (answer) ->
-      try_count++ # increment try count
-      _.map answer, (ans) ->
-        (div {className: 'x'},
-          (div {className: 'x'},
-            (div {className: 'question-hdr'},
-              (h4 {}, "Question \##{ans.number}")
-            )
-            (div {className: 'question-bd'},
-              (p {}, "#{ans.prompt}")
-              (p {}, 
-                (strong {}, "Answer:")
-                " #{ans.answer}"
-              )
-              if ans.score != false
-                (p {}, 
-                  (strong {}, "Score:")
-                  (span {className: "score-value score-#{ans.score}"}, " #{ans.score}")
-                )
-              )
-            )
-          )
+    question = @props.data
 
     (div {className: className},
       (a
@@ -48,10 +21,31 @@ ReportQuestionDetails = React.createClass
         ,
         "⬅ back"
       )
-      (div {className: "teamName"}, 
-        (h2 {}, "Question \#")
-      )
-      _.map answers, renderQuestion
+      if question
+        (div {className: 'x'},
+          (div {className: 'x'},
+            (div {className: 'question-hdr'},
+              (h4 {}, "Question \##{question.number}")
+            )
+            (div {className: 'question-bd'},
+              (p {}, "#{question.prompt}")
+              (p {},
+                (strong {}, "Ansers:")
+                _.map question.answers, (answer) ->
+                  (div {},
+                    (div {}, answer.team)
+                    if answer.score != false
+                      (p {},
+                        (strong {}, "Score:")
+                        (span {className: "score-value score-#{answer.score}"}, " #{answer.score}")
+                      )
+                  )
+              )
+            )
+          )
+        )
+      else
+        (div {} , "empty")
     )
 
 

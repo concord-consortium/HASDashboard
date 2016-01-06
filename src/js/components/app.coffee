@@ -98,6 +98,7 @@ App = React.createClass
         showDetails: @state.showDetails
         toggleQuestionDetails: @toggleQuestionDetails
         showQuestionDetails: @state.showQuestionDetails
+        selectedQuestion: @state.selectedQuestion
         data: @state
       )
       (NavOverlay

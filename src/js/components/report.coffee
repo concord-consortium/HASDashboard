@@ -28,10 +28,10 @@ Report = React.createClass
         )
         (tr {},
           (td {}, (div {}, ""))
-          _.map @props.questions, (h) =>
+          _.map @props.questions, (question) =>
             (ColumnHeader
-              data: h
-              onClick: @props.clickColumnHeader
+              data: question.number
+              onClick: (evt) => @props.clickColumnHeader(evt,question)
             )
           (th {}, "Tries")
         )
