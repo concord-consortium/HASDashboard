@@ -3,6 +3,7 @@ require '../../css/report.styl'
 React      = require 'react'
 _          = require 'lodash'
 StudentRow = React.createFactory require './student_row.coffee'
+ColumnHeader = React.createFactory require './column_header.coffee'
 
 {div, table, th, tr, td} = React.DOM
 
@@ -10,7 +11,7 @@ Report = React.createClass
 
   render: ->
     answers = @props.students[0].answers[0]
-    headerData = _.map answers, (answer) -> answer.number
+    #headerData = _.map answers, (answer) -> answer.number
     className = "report"
     className = "#{className} hidden-left" if @props.hidden
     (div {className: className},
@@ -27,8 +28,11 @@ Report = React.createClass
         )
         (tr {},
           (td {}, (div {}, ""))
-          _.map headerData, (h) ->
-            (th {}, (div {className: 'question-number marker'}, h))
+          _.map @props.questions, (h) =>
+            (ColumnHeader
+              data: h
+              onClick: @props.clickColumnHeader
+            )
           (th {}, "Tries")
         )
         _.map @props.students, (student) =>

@@ -4,6 +4,7 @@ React         = require 'react'
 openable     = require './mixins/openable.coffee'
 Report       = React.createFactory require './report.coffee'
 ReportDetails = React.createFactory require './report_details.coffee'
+ReportQuestionDetails = React.createFactory require './report_question_details.coffee'
 
 {div} = React.DOM
 
@@ -13,6 +14,7 @@ ReportOverlay = React.createClass
 
   getDefaultProps: ->
     showDetails: false
+    showQuestionDetails: false
 
   render: ->
     (div {className: "report_overlay"},
@@ -20,13 +22,21 @@ ReportOverlay = React.createClass
       (div {className: @className("content")},
         (Report
           students: @props.data.students
+          questions: @props.data.questions
           hidden: @props.showDetails is true
+          hidden: @props.showQuestionDetails is true
           clickStudent: @props.toggleDetails
+          clickColumnHeader: @props.toggleQuestionDetails
         )
         (ReportDetails
           data: @props.data.selectedStudent
           returnClick: @props.toggleDetails
           hidden: @props.showDetails is false
+        )
+        (ReportQuestionDetails
+          data: @props.data.selectedQuestion
+          returnClick: @props.toggleQuestionDetails
+          hidden: @props.showQuestionDetails is false
         )
       )
     )
