@@ -23,8 +23,6 @@ ActivityBackround = React.createClass
 
     (div {className: "iframeBG"},
       (div {className: "iframeContainer", ref: 'overlay'},
-        (div {},
-          "Hello there!")
         (iframe
           src: src,
           className: 'iframeBG',
