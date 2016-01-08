@@ -55,8 +55,6 @@ App = React.createClass
     pageUrl: "http://localhost:3000/activities/652"
     showReport: false
     showNav: false
-    onShowStudentDetails: false
-    onShowQuestionDetails: false
     nowShowing: ShowingOverview
     selectedStudent: null
     students: Students
