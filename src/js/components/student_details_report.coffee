@@ -4,7 +4,7 @@ React         = require 'react'
 
 {a, div, h2, h3, h4, hr, p, span, strong} = React.DOM
 
-ReportDetails = React.createClass
+StudentDetailsReport = React.createClass
 
   getDefaultProps: ->
     data:
@@ -31,12 +31,12 @@ ReportDetails = React.createClass
               )
               (div {className: 'question-bd'},
                 (p {}, "#{ans.prompt}")
-                (p {}, 
+                (p {},
                   (strong {}, "Answer:")
                   " #{ans.answer}"
                 )
                 if ans.score != false
-                  (p {}, 
+                  (p {},
                     (strong {}, "Score:")
                     (span {className: "score-value score-#{ans.score}"}, " #{ans.score}")
                   )
@@ -52,11 +52,11 @@ ReportDetails = React.createClass
         ,
         "⬅ back"
       )
-      (div {className: "teamName"}, 
+      (div {className: "teamName"},
         (h2 {}, teamName)
       )
       _.map answers, renderAnswer
     )
 
 
-module.exports=ReportDetails
+module.exports=StudentDetailsReport

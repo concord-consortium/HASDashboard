@@ -2,7 +2,7 @@ React = require 'react'
 
 {a, div, h2, h3, h4, hr, p, span, strong} = React.DOM
 
-ReportQuestionDetails = React.createClass
+QuestionDetailsReport = React.createClass
 
   getDefaultProps: ->
     data:
@@ -49,4 +49,4 @@ ReportQuestionDetails = React.createClass
     )
 
 
-module.exports=ReportQuestionDetails
+module.exports=QuestionDetailsReport

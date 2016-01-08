@@ -9,6 +9,12 @@ ReportOverlay     = React.createFactory require './report_overlay.coffee'
 Students          = require '../data/students.coffee'
 Questions         = require '../data/questions.coffee'
 
+
+ShowingOverview        = "ShowingOverview"
+ShowingStudentDetails  = "ShowingStudentDetails"
+ShowingQuestionDetails = "ShowingQuestionDetails"
+
+
 {h1, iframe, div} = React.DOM
 
 App = React.createClass
@@ -49,8 +55,9 @@ App = React.createClass
     pageUrl: "http://localhost:3000/activities/652"
     showReport: false
     showNav: false
-    showDetails: false
-    showQuestionDetails: false
+    onShowStudentDetails: false
+    onShowQuestionDetails: false
+    nowShowing: ShowingOverview
     selectedStudent: null
     students: Students
     selectedQuestion: null
@@ -71,15 +78,19 @@ App = React.createClass
       showReport: showReportNext
       showNav: showNavNext
 
-  toggleDetails: (evt,student)->
+  onShowStudentDetails: (evt,student)->
     @setState
       selectedStudent: student
-      showDetails: (not @state.showDetails)
+      nowShowing: ShowingStudentDetails
 
-  toggleQuestionDetails: (evt,question)->
+  onShowQuestionDetails: (evt,question)->
     @setState
       selectedQuestion: question
-      showQuestionDetails: (not @state.showQuestionDetails)
+      nowShowing: ShowingQuestionDetails
+
+  onShowOverview: (evt) ->
+    @setState
+      nowShowing: ShowingOverview
 
   setPage: (page_url) ->
     @setState
@@ -94,11 +105,16 @@ App = React.createClass
       (ReportOverlay
         opened: @state.showReport
         toggle: @toggleReport
-        toggleDetails: @toggleDetails
-        showDetails: @state.showDetails
-        toggleQuestionDetails: @toggleQuestionDetails
-        showQuestionDetails: @state.showQuestionDetails
+        onShowStudentDetails: @onShowStudentDetails
+        onShowQuestionDetails: @onShowQuestionDetails
+        onShowOverview: @onShowOverview
+
+        hideOverviewReport: @state.nowShowing isnt ShowingOverview
+        hideStudentDetailsReport: @state.nowShowing isnt ShowingStudentDetails
+        hideQuestionDetailsReport: @state.nowShowing isnt ShowingQuestionDetails
+
         selectedQuestion: @state.selectedQuestion
+        selectedStudent: @state.selectedStudent
         data: @state
       )
       (NavOverlay
