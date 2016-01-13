@@ -13,28 +13,30 @@ ReportOverlay = React.createClass
   mixins: [openable]
 
   render: ->
-    hideReport = @props.onShowQuestionDetails is true
     (div {className: "report_overlay"},
       (div {className: @className("tab"), onClick: @props.toggle}, "Report")
       (div {className: @className("content")},
         (Report
-          students: @props.data.students
-          questions: @props.data.questions
+          students: @props.data.runs
+          questions: @props.questions
           hidden: @props.hideOverviewReport
           clickStudent: @props.onShowStudentDetails
           clickColumnHeader: @props.onShowQuestionDetails
         )
         (StudentDetailsReport
-          data: @props.data.selectedStudent
+          student: @props.data.selectedStudent
+          questions: @props.questions
           returnClick: @props.onShowOverview
           hidden: @props.hideStudentDetailsReport
         )
         (QuestionDetailsReport
-          data: @props.data.selectedQuestion
+          question: @props.data.selectedQuestion
+          runs: @props.data.runs
           returnClick: @props.onShowOverview
           hidden: @props.hideQuestionDetailsReport
         )
       )
     )
+
 
 module.exports=ReportOverlay

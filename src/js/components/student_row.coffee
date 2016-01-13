@@ -3,47 +3,42 @@ _          = require 'lodash'
 
 {div, span, tr, th, td} = React.DOM
 
-noAnswer = ->
-  [
-    {number: "10", completed: false, score: false}
-    {number: "11", completed: false, score: false}
-    {number: "12", completed: false, score: false}
-    {number: "13", completed: false, score: false}
-  ]
-
+noSubmission = ->
+  {
+    answers: [
+      {score: false}
+      {score: false}
+      {score: false}
+      {score: false}
+    ]
+  }
 
 StudentRow = React.createClass
-  getDefaultProps: ->
-    data:
-      teamName: "No Name", answers: [[ noAnswer() ]]
-
   doClick: (e) ->
     @props.onClick e, @props.data
 
   render: ->
     data = @props.data
-    lastAnswer = _.last(data.answers) or noAnswer()
+    lastSubmission = _.last(data.submissions) or noSubmission()
     (tr {onClick: @doClick, className: "student_row selectable"},
-      (th {className: "team_name"}, data.teamName),
-      _.map lastAnswer, (a) ->
-        if a.completed
+      (th {className: "team_name"}, data.student),
+      for a, idx in lastSubmission.answers
+      #_.map lastSubmission.answers, (a) ->
+        if a.score != false
           className = "marker complete"
-          if a.score
-            className += " " + "score_#{a.score}"
-        else
-          className = "marker incomplete"
-        if a.score
+          className += " " + "score_#{a.score}"
           score = (span {className: "score_#{a.score}"}, a.score)
         else
+          className = "marker incomplete"
           score = (span {}, "")
-        (td {},
+        (td {key: data.key + idx},
           (div {className: className}, score)
         )
       (td {},
-        if data.answers.length < 1
+        if data.submissions.length < 1
           (span {className: "tries none"}, '')
         else
-          (span {className: "tries"}, data.answers.length)
+          (span {className: "tries"}, data.submissions.length)
       )
     )
 

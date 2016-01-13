@@ -3,7 +3,7 @@ require '../../css/activity_background.styl'
 $     = require '../vendor/jquery.min.js'
 React = require('react')
 
-{h1, iframe, div} = React.DOM
+{iframe, div} = React.DOM
 
 ActivityBackround = React.createClass
 
@@ -11,7 +11,6 @@ ActivityBackround = React.createClass
     pageUrl: "http://authoring.concord.org/activities/3857"
 
   scrollIframe: (e) ->
-    console.log e
     e.stopPropagation()
     e.preventDefault()
 
