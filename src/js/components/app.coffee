@@ -1,66 +1,109 @@
 React = require 'react'
 $ = require 'jquery'
+_ = require 'lodash'
 
 require '../../css/activity_background.styl'
 
 ActivityBackround = React.createFactory require './activity_background.coffee'
 NavOverlay        = React.createFactory require './nav_overlay.coffee'
 ReportOverlay     = React.createFactory require './report_overlay.coffee'
-Students          = require '../data/students.coffee'
-Questions         = require '../data/questions.coffee'
 
+offeringFakeData  = require '../data/offering.coffee'
+activityFakeData  = require '../data/activity.coffee'
+runsFakeData      = require '../data/runs.coffee'
+
+utils = require '../utils.coffee'
 
 ShowingOverview        = "ShowingOverview"
 ShowingStudentDetails  = "ShowingStudentDetails"
 ShowingQuestionDetails = "ShowingQuestionDetails"
+ACTIVITY_ID_REGEXP = /activities\/(\d+)/
 
-
-{h1, iframe, div} = React.DOM
+{div} = React.DOM
 
 App = React.createClass
-
-  componentDidMount: ->
-    @setActivity(652)
-    @setOffering(3)
-
-  getDefaultProps: ->
-    # baseUrl: "http://authoring.concord.org/"
-    baseUrl: "http://localhost:3000"
-    offeringBase: "http://localhost:9000/api/v1/dashboard_reports/report.js?offering_id="
-
-  setOffering: (id) ->
-    setOffering = (data) =>
-      console.log data
-
-    $.ajax
-      url: "#{@props.offeringBase}#{id}"
-      dataType: "jsonp"
-      success: setOffering.bind(@)
-
-  setActivity: (id) ->
-    tocUrl  = "#{@props.baseUrl}/activities/#{id}/dashboard_toc"
-    setActivity = (activity) =>
-      first_page = activity.pages[0]
-      @setState
-        activity: activity
-        pageUrl: "#{@props.baseUrl}/#{first_page.url}"
-
-
-    $.ajax
-      url: tocUrl
-      dataType: "jsonp"
-      success: setActivity.bind(@)
-
   getInitialState: ->
-    pageUrl: "http://localhost:3000/activities/652"
+    laraBaseUrl: null
+    activityId: null
+    pageId: null
+    pageUrl: null
+    students: []
+    runs: []
+    activity: null
     showReport: false
     showNav: false
     nowShowing: ShowingOverview
     selectedStudent: null
-    students: Students
     selectedQuestion: null
-    questions: Questions
-    activity: {}
+
+  componentDidMount: ->
+    # Look for ?offering= parameter and use it to get the offering information.
+    # If param is not provided, we will load fake offering data (from `data/offering.coffee`).
+    # Note that you can replace data/offering.coffee content to point to real LARA instance.
+    params = utils.urlParams()
+    @setOffering(params.offering)
+
+  componentDidUpdate: (prevProps, prevState) ->
+    if @state.students != prevState.students || @state.pageId != prevState.pageId
+      # Runs data depends on runKey and pageId, so when they change, we need to refresh it.
+      @setRuns()
+    if @state.activityId != prevState.activityId
+      @setActivity()
+
+  setOffering: (offeringUrl) ->
+    setOffering = (data) =>
+      @setState
+        students: data.students
+        laraBaseUrl: utils.baseUrl(data.activity_url)
+        activityId: data.activity_url.match(ACTIVITY_ID_REGEXP)[1]
+
+    if offeringUrl
+      $.ajax
+        url: offeringUrl
+        dataType: "jsonp"
+        success: setOffering
+    else
+      utils.fakeAjax ->
+        setOffering(offeringFakeData)
+
+  setActivity: () ->
+    setActivity = (activity) =>
+      firstPage = activity.pages[0]
+      @setState
+        activity: activity
+        pageId: firstPage.id
+        pageUrl: "#{@state.laraBaseUrl}/#{firstPage.url}"
+
+    if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
+      $.ajax
+        url: "#{@state.laraBaseUrl}/activities/#{@state.activityId}/dashboard_toc"
+        dataType: "jsonp"
+        success: setActivity
+    else
+      utils.fakeAjax =>
+        setActivity(activityFakeData(@state.activityId))
+
+  setRuns: ->
+    # Wait till we have both page ID and run keys list.
+    return if @state.pageId == null || @state.students.length == 0
+    setRuns = (runs) =>
+      # LARA doesn't return student names, so add them manually.
+      studentByRunKey = {}
+      _.each @state.students, (s) -> studentByRunKey[s.run_key] = s
+      _.each runs, (r) -> r.student = studentByRunKey[r.key].name
+      @setState runs: runs
+
+    if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
+      $.ajax
+        url: "#{@state.laraBaseUrl}/runs/dashboard"
+        data:
+          page_id: @state.pageId,
+          runs: _.map @state.students, (s) -> s.run_key
+        dataType: "jsonp"
+        success: setRuns
+    else
+      utils.fakeAjax =>
+        setRuns(runsFakeData(@state.students, @getQuestions()))
 
   toggleReport: ->
     showReportNext = not @state.showReport
@@ -86,16 +129,23 @@ App = React.createClass
       selectedQuestion: question
       nowShowing: ShowingQuestionDetails
 
-  onShowOverview: (evt) ->
+  onShowOverview: ->
     @setState
       nowShowing: ShowingOverview
 
-  setPage: (page_url) ->
+  setPage: (pageId, pageUrl) ->
     @setState
-      pageUrl: "#{@props.baseUrl}/#{page_url}"
+      pageId: pageId
+      pageUrl: "#{@state.laraBaseUrl}/#{pageUrl}"
+      nowShowing: ShowingOverview
+      selectedQuestion: null
+      selectedStudent: null
+
+  getQuestions: ->
+    return [] unless @state.activity
+    (_.find @state.activity.pages, (p) => p.id == @state.pageId).questions
 
   render: ->
-
     (div {className: "app"},
       (ActivityBackround
         pageUrl: @state.pageUrl
@@ -114,6 +164,7 @@ App = React.createClass
         selectedQuestion: @state.selectedQuestion
         selectedStudent: @state.selectedStudent
         data: @state
+        questions: @getQuestions()
       )
       (NavOverlay
         opened: @state.showNav

@@ -1,36 +1,33 @@
 # require '../../css/report_overlay.styl'
 
-React         = require 'react'
+React = require 'react'
+_ = require 'lodash'
 
-{a, div, h2, h3, h4, hr, p, span, strong} = React.DOM
+{a, div, h2, h3, h4, p, span, strong} = React.DOM
 
 StudentDetailsReport = React.createClass
-
-  getDefaultProps: ->
-    data:
-      teamName: "no team"
-      answers: []
-      try: 1
-
   render: ->
     className = "report_details"
     className = "#{className} hidden-right" if @props.hidden
-    teamName = @props.data?.teamName || 'No Team'
-    answers = @props.data?.answers || []
-    try_count = 0
+    teamName = @props.student?.student || 'No Team'
+    submissions = @props.student?.submissions || []
+    tryCount = 0
+    question = {}
+    _.each @props.questions, (q) ->
+      question[q.index] = q
 
-    renderAnswer = (answer) ->
-      try_count++ # increment try count
-      (div {className: 'try'},
-        (h3 {}, "Try " + try_count)
-        _.map answer, (ans) ->
-          (div {className: 'x'},
+    renderSubmission = (submission) ->
+      tryCount++ # increment try count
+      (div {key: submission.id, className: 'try'},
+        (h3 {}, "Try " + tryCount)
+        _.map submission.answers, (ans) ->
+          (div {key: ans.question_index, className: 'x'},
             (div {className: 'x'},
               (div {className: 'question-hdr'},
-                (h4 {}, "Question \##{ans.number}")
+                (h4 {}, "Question \##{ans.question_index}")
               )
               (div {className: 'question-bd'},
-                (p {}, "#{ans.prompt}")
+                (p {}, "#{question[ans.question_index].prompt}")
                 (p {},
                   (strong {}, "Answer:")
                   " #{ans.answer}"
@@ -55,7 +52,7 @@ StudentDetailsReport = React.createClass
       (div {className: "teamName"},
         (h2 {}, teamName)
       )
-      _.map answers, renderAnswer
+      _.map submissions, renderSubmission
     )
 
 

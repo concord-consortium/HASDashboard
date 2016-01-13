@@ -1,18 +1,35 @@
 React = require 'react'
+_ = require 'lodash'
 
-{a, div, h2, h3, h4, hr, p, span, strong} = React.DOM
+{a, div, h4, p, span, strong} = React.DOM
 
 QuestionDetailsReport = React.createClass
 
   getDefaultProps: ->
-    data:
-      number: "0"
+    question:
+      index: 0
       prompt: "No Question"
-      answers: []  # {team, score, completed, answer}
+    runs: []
+
+  answers: ->
+    result = []
+    question = @props.question
+    _.each @props.runs, (run) ->
+      finalSubmission = _.last run.submissions
+      if finalSubmission
+        _.each finalSubmission.answers, (a) ->
+          if a.question_index == question.index
+            answer =
+              student: run.student
+              run: run.key
+              answer: a.answer
+              score: a.score
+            result.push answer
+    result
 
   render: ->
     className = "report_question_details"
-    question = @props.data
+    question = @props.question
 
     (div {className: className},
       (a
@@ -22,18 +39,18 @@ QuestionDetailsReport = React.createClass
         "⬅ back"
       )
       if question
-        (div {className: 'x'},
+        (div {key: question.index, className: 'x'},
           (div {className: 'x'},
             (div {className: 'question-hdr'},
-              (h4 {}, "Question \##{question.number}")
+              (h4 {}, "Question \##{question.index}")
             )
             (div {className: 'question-bd'},
               (p {}, "#{question.prompt}")
               (p {},
-                (strong {}, "Ansers:")
-                _.map question.answers, (answer) ->
-                  (div {},
-                    (div {}, answer.team)
+                (strong {}, "Answers:")
+                _.map @answers(), (answer) ->
+                  (div {key: answer.run},
+                    (div {}, answer.student)
                     if answer.score != false
                       (p {},
                         (strong {}, "Score:")
