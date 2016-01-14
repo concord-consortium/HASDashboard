@@ -43,11 +43,11 @@ getSubmissions = (questions) ->
     answers: getAnswers(questions)
 
 getAnswers = (questions) ->
-  _.map questions, (question) ->
+  for question, idx in questions
     question_index: question.index
     answer: randomAnswer[_.random(1, 4)]()
     feedback: "feedback"
-    score: _.random(1, 5)
+    score: if idx % 2 == 0 then null else _.random(1, 5)
 
 module.exports = (students, questions) ->
   _.map students, (s) ->

@@ -6,10 +6,10 @@ _          = require 'lodash'
 noSubmission = ->
   {
     answers: [
-      {score: false}
-      {score: false}
-      {score: false}
-      {score: false}
+      {}
+      {}
+      {}
+      {}
     ]
   }
 
@@ -23,13 +23,14 @@ StudentRow = React.createClass
     (tr {onClick: @doClick, className: "student_row selectable"},
       (th {className: "team_name"}, data.student),
       for a, idx in lastSubmission.answers
-      #_.map lastSubmission.answers, (a) ->
-        if a.score != false
+        if a.answer?
           className = "marker complete"
-          className += " " + "score_#{a.score}"
-          score = (span {className: "score_#{a.score}"}, a.score)
         else
           className = "marker incomplete"
+        if a.score?
+          className += " score_#{a.score}"
+          score = (span {className: "score_#{a.score}"}, a.score)
+        else
           score = (span {}, "")
         (td {key: data.key + idx},
           (div {className: className}, score)
