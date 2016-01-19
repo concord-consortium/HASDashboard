@@ -3,25 +3,18 @@ _          = require 'lodash'
 
 {div, span, tr, th, td} = React.DOM
 
-noSubmission = ->
-  {
-    answers: [
-      {}
-      {}
-      {}
-      {}
-    ]
-  }
+noSubmission = (questions) ->
+  answers: _.map questions, -> {}
 
 StudentRow = React.createClass
   doClick: (e) ->
-    @props.onClick e, @props.data
+    @props.onClick e, @props.student
 
   render: ->
-    data = @props.data
-    lastSubmission = _.last(data.submissions) or noSubmission()
+    student = @props.student
+    lastSubmission = _.last(student.submissions) or noSubmission(@props.questions)
     (tr {onClick: @doClick, className: "student_row selectable"},
-      (th {className: "team_name"}, data.student),
+      (th {className: "team_name"}, student.student_name),
       for a, idx in lastSubmission.answers
         if a.answer?
           className = "marker complete"
@@ -32,14 +25,14 @@ StudentRow = React.createClass
           score = (span {className: "score_#{a.score}"}, a.score)
         else
           score = (span {}, "")
-        (td {key: data.key + idx},
+        (td {key: student.student_username + idx},
           (div {className: className}, score)
         )
       (td {},
-        if data.submissions.length < 1
+        if !student.submissions || student.submissions.length < 1
           (span {className: "tries none"}, '')
         else
-          (span {className: "tries"}, data.submissions.length)
+          (span {className: "tries"}, student.submissions.length)
       )
     )
 

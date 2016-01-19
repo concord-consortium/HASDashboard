@@ -9,7 +9,7 @@ StudentDetailsReport = React.createClass
   render: ->
     className = "report_details"
     className = "#{className} hidden-right" if @props.hidden
-    teamName = @props.student?.student || 'No Team'
+    teamName = @props.student?.student_name || 'No Team'
     submissions = @props.student?.submissions || []
     tryCount = 0
     question = {}
@@ -32,7 +32,7 @@ StudentDetailsReport = React.createClass
                   (strong {}, "Answer:")
                   " #{ans.answer}"
                 )
-                if ans.score != false
+                if ans.score?
                   (p {},
                     (strong {}, "Score:")
                     (span {className: "score-value score-#{ans.score}"}, " #{ans.score}")

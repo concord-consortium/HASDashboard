@@ -51,6 +51,6 @@ getAnswers = (questions) ->
 
 module.exports = (students, questions) ->
   _.map students, (s) ->
-    key: s.run_key
+    endpoint_url: s.endpoint_url
     submissions: getSubmissions(questions)
 

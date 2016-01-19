@@ -17,7 +17,9 @@ utils = require '../utils.coffee'
 ShowingOverview        = "ShowingOverview"
 ShowingStudentDetails  = "ShowingStudentDetails"
 ShowingQuestionDetails = "ShowingQuestionDetails"
+
 ACTIVITY_ID_REGEXP = /activities\/(\d+)/
+REPORT_UPDATE_INTERVAL = 15000 # ms
 
 {div} = React.DOM
 
@@ -43,8 +45,16 @@ App = React.createClass
     params = utils.urlParams()
     @setOffering(params.offering)
 
+    # Refresh report.
+    setInterval =>
+      # New students can be added to class or their endpoint_url can be updated once
+      # they start an activity.
+      @setOffering(params.offering)
+      @setRuns()
+    , REPORT_UPDATE_INTERVAL
+
   componentDidUpdate: (prevProps, prevState) ->
-    if @state.students != prevState.students || @state.pageId != prevState.pageId
+    if !_.isEqual(@state.students, prevState.students) || @state.pageId != prevState.pageId
       # Runs data depends on runKey and pageId, so when they change, we need to refresh it.
       @setRuns()
     if @state.activityId != prevState.activityId
@@ -66,7 +76,7 @@ App = React.createClass
       utils.fakeAjax ->
         setOffering(offeringFakeData)
 
-  setActivity: () ->
+  setActivity: ->
     setActivity = (activity) =>
       firstPage = activity.pages[0]
       @setState
@@ -87,18 +97,14 @@ App = React.createClass
     # Wait till we have both page ID and run keys list.
     return if @state.pageId == null || @state.students.length == 0
     setRuns = (runs) =>
-      # LARA doesn't return student names, so add them manually.
-      studentByRunKey = {}
-      _.each @state.students, (s) -> studentByRunKey[s.run_key] = s
-      _.each runs, (r) -> r.student = studentByRunKey[r.key].name
-      @setState runs: runs
+      @setState runs: processRunsData(runs, @state.students)
 
     if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
       $.ajax
         url: "#{@state.laraBaseUrl}/runs/dashboard"
         data:
           page_id: @state.pageId,
-          runs: _.map @state.students, (s) -> s.run_key
+          endpoint_urls: getEndpointUrls(@state.students)
         dataType: "jsonp"
         success: setRuns
     else
@@ -174,5 +180,27 @@ App = React.createClass
       )
     )
 
+# Combine runs data provided by LARA and students data provided by Portal.
+# Note that LARA doesn't return student names or user names.
+processRunsData = (runs, students) ->
+  runByEndpointUrl = {}
+  _.each runs, (r) -> runByEndpointUrl[r.endpoint_url] = r
+  _.map students, (s) ->
+    runData = runByEndpointUrl[s.endpoint_url] || {}
+    runData.student_name = s.name
+    runData.student_username = s.username
+    filterOutNonCRaterScores(runData.submissions)
+    runData
+
+filterOutNonCRaterScores = (submissions) ->
+  _.each submissions, (s) ->
+    _.each s.answers, (a) ->
+      if a.feedback_type != 'CRater::FeedbackItem'
+        delete a.score
+
+getEndpointUrls = (students) ->
+  # Some students might have endpoint URL equal to null
+  # (it means they haven't started activity yet).
+  _.compact(_.map students, (s) -> s.endpoint_url)
 
 module.exports=App
