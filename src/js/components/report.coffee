@@ -37,8 +37,9 @@ Report = React.createClass
           )
           _.map @props.students, (student) =>
             (StudentRow
-              key: student.key
-              data: student
+              key: student.student_username
+              student: student
+              questions: @props.questions
               onClick: @props.clickStudent
             )
         )
