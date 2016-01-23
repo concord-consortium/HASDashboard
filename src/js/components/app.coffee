@@ -180,9 +180,13 @@ App = React.createClass
       )
     )
 
+processRunsData = (runs, students) ->
+  addStudentDetails runs, students
+  addGroupsMembers runs
+
 # Combine runs data provided by LARA and students data provided by Portal.
 # Note that LARA doesn't return student names or user names.
-processRunsData = (runs, students) ->
+addStudentDetails = (runs, students) ->
   runByEndpointUrl = {}
   _.each runs, (r) -> runByEndpointUrl[r.endpoint_url] = r
   _.map students, (s) ->
@@ -192,15 +196,34 @@ processRunsData = (runs, students) ->
     filterOutNonCRaterScores(runData.submissions)
     runData
 
+# Do not display scores of non-CRater questions
 filterOutNonCRaterScores = (submissions) ->
   _.each submissions, (s) ->
     _.each s.answers, (a) ->
       if a.feedback_type != 'CRater::FeedbackItem'
         delete a.score
 
+# LARA provides only group_id for every submission. Use that data
+# to generate group members and add it to submission info.
+addGroupsMembers = (runs) ->
+  groups = {}
+  _.each runs, (r) ->
+    _.each r.submissions, (s) ->
+      if s.group_id?
+        groups[s.group_id] ||= []
+        groups[s.group_id].push {name: r.student_name, username: r.student_username}
+  # Remove duplicates.
+  for groupId, group of groups
+    groups[groupId] = _.uniq group, 'username'
+  # Add group members to submission objects.
+  _.each runs, (r) ->
+    _.each r.submissions, (s) ->
+      s.group = groups[s.group_id]
+
 getEndpointUrls = (students) ->
   # Some students might have endpoint URL equal to null
   # (it means they haven't started activity yet).
   _.compact(_.map students, (s) -> s.endpoint_url)
+
 
 module.exports=App
