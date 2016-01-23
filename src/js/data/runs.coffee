@@ -47,6 +47,7 @@ getAnswers = (questions) ->
     question_index: question.index
     answer: randomAnswer[_.random(1, 4)]()
     feedback: "feedback"
+    feedback_type: if idx % 2 == 0 then "Embeddable::FeedbackItem" else "CRater::FeedbackItem"
     score: if idx % 2 == 0 then null else _.random(1, 5)
 
 module.exports = (students, questions) ->
