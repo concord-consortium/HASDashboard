@@ -8,11 +8,11 @@ ActivityBackround = React.createFactory require './activity_background.coffee'
 NavOverlay        = React.createFactory require './nav_overlay.coffee'
 ReportOverlay     = React.createFactory require './report_overlay.coffee'
 
-offeringFakeData  = require '../data/offering.coffee'
-activityFakeData  = require '../data/activity.coffee'
-runsFakeData      = require '../data/runs.coffee'
-
-utils = require '../utils.coffee'
+offeringFakeData  = require '../data/fake_offering.coffee'
+activityFakeData  = require '../data/fake_activity.coffee'
+runsFakeData      = require '../data/fake_runs.coffee'
+dataHelpers       = require '../data/helpers.coffee'
+utils             = require '../utils.coffee'
 
 ShowingOverview        = "ShowingOverview"
 ShowingStudentDetails  = "ShowingStudentDetails"
@@ -29,8 +29,8 @@ App = React.createClass
     activityId: null
     pageId: null
     pageUrl: null
+    studentsPortalInfo: []
     students: []
-    runs: []
     activity: null
     showReport: false
     showNav: false
@@ -54,8 +54,8 @@ App = React.createClass
     , REPORT_UPDATE_INTERVAL
 
   componentDidUpdate: (prevProps, prevState) ->
-    if !_.isEqual(@state.students, prevState.students) || @state.pageId != prevState.pageId
-      # Runs data depends on runKey and pageId, so when they change, we need to refresh it.
+    if !_.isEqual(@state.studentsPortalInfo, prevState.studentsPortalInfo) || @state.pageId != prevState.pageId
+      # students data depends on students' endpoint URLs and pageId, so when they change, we need to refresh it.
       @setRuns()
     if @state.activityId != prevState.activityId
       @setActivity()
@@ -63,7 +63,7 @@ App = React.createClass
   setOffering: (offeringUrl) ->
     setOffering = (data) =>
       @setState
-        students: data.students
+        studentsPortalInfo: data.students
         laraBaseUrl: utils.baseUrl(data.activity_url)
         activityId: data.activity_url.match(ACTIVITY_ID_REGEXP)[1]
 
@@ -94,22 +94,22 @@ App = React.createClass
         setActivity(activityFakeData(@state.activityId))
 
   setRuns: ->
-    # Wait till we have both page ID and run keys list.
-    return if @state.pageId == null || @state.students.length == 0
+    # Wait till we have both page ID and studentsPortalInfo list.
+    return if @state.pageId == null || @state.studentsPortalInfo.length == 0
     setRuns = (runs) =>
-      @setState runs: processRunsData(runs, @state.students)
+      @setState students: dataHelpers.getStudentsData(runs, @state.studentsPortalInfo)
 
     if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
       $.ajax
         url: "#{@state.laraBaseUrl}/runs/dashboard"
         data:
           page_id: @state.pageId,
-          endpoint_urls: getEndpointUrls(@state.students)
+          endpoint_urls: dataHelpers.getEndpointUrls(@state.studentsPortalInfo)
         dataType: "jsonp"
         success: setRuns
     else
       utils.fakeAjax =>
-        setRuns(runsFakeData(@state.students, @getQuestions()))
+        setRuns(runsFakeData(@state.studentsPortalInfo, @getQuestions()))
 
   toggleReport: ->
     showReportNext = not @state.showReport
@@ -179,51 +179,6 @@ App = React.createClass
         setPage: @setPage
       )
     )
-
-processRunsData = (runs, students) ->
-  addStudentDetails runs, students
-  addGroupsMembers runs
-
-# Combine runs data provided by LARA and students data provided by Portal.
-# Note that LARA doesn't return student names or user names.
-addStudentDetails = (runs, students) ->
-  runByEndpointUrl = {}
-  _.each runs, (r) -> runByEndpointUrl[r.endpoint_url] = r
-  _.map students, (s) ->
-    runData = runByEndpointUrl[s.endpoint_url] || {}
-    runData.student_name = s.name
-    runData.student_username = s.username
-    filterOutNonCRaterScores(runData.submissions)
-    runData
-
-# Do not display scores of non-CRater questions
-filterOutNonCRaterScores = (submissions) ->
-  _.each submissions, (s) ->
-    _.each s.answers, (a) ->
-      if a.feedback_type != 'CRater::FeedbackItem'
-        delete a.score
-
-# LARA provides only group_id for every submission. Use that data
-# to generate group members and add it to submission info.
-addGroupsMembers = (runs) ->
-  groups = {}
-  _.each runs, (r) ->
-    _.each r.submissions, (s) ->
-      if s.group_id?
-        groups[s.group_id] ||= []
-        groups[s.group_id].push {name: r.student_name, username: r.student_username}
-  # Remove duplicates.
-  for groupId, group of groups
-    groups[groupId] = _.uniq group, 'username'
-  # Add group members to submission objects.
-  _.each runs, (r) ->
-    _.each r.submissions, (s) ->
-      s.group = groups[s.group_id]
-
-getEndpointUrls = (students) ->
-  # Some students might have endpoint URL equal to null
-  # (it means they haven't started activity yet).
-  _.compact(_.map students, (s) -> s.endpoint_url)
 
 
 module.exports=App

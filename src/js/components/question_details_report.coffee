@@ -9,19 +9,18 @@ QuestionDetailsReport = React.createClass
     question:
       index: 0
       prompt: "No Question"
-    runs: []
+    students: []
 
   answers: ->
     result = []
     question = @props.question
-    _.each @props.runs, (run) ->
-      finalSubmission = _.last run.submissions
+    _.each @props.students, (student) ->
+      finalSubmission = _.last student.submissions
       if finalSubmission
         _.each finalSubmission.answers, (a) ->
           if a.question_index == question.index
             answer =
-              studentName: run.student_name
-              studentUsername: run.student_username
+              studentName: student.name
               answer: a.answer
               score: a.score
             result.push answer
@@ -49,7 +48,7 @@ QuestionDetailsReport = React.createClass
               (p {},
                 (strong {}, "Answers:")
                 _.map @answers(), (answer) ->
-                  (div {key: answer.studentUsername},
+                  (div {key: answer.studentName},
                     (strong {}, answer.studentName)
                     (div {}, answer.answer)
                     if answer.score?

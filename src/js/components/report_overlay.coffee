@@ -17,7 +17,7 @@ ReportOverlay = React.createClass
       (div {className: @className("tab"), onClick: @props.toggle}, "Report")
       (div {className: @className("content")},
         (Report
-          students: @props.data.runs
+          students: @props.data.students
           questions: @props.questions
           hidden: @props.hideOverviewReport
           clickStudent: @props.onShowStudentDetails
@@ -31,7 +31,7 @@ ReportOverlay = React.createClass
         )
         (QuestionDetailsReport
           question: @props.data.selectedQuestion
-          runs: @props.data.runs
+          students: @props.data.students
           returnClick: @props.onShowOverview
           hidden: @props.hideQuestionDetailsReport
         )

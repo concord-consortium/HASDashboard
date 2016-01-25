@@ -14,7 +14,7 @@ StudentRow = React.createClass
     student = @props.student
     lastSubmission = _.last(student.submissions) or noSubmission(@props.questions)
     (tr {onClick: @doClick, className: "student_row selectable"},
-      (th {className: "team_name"}, student.student_name),
+      (th {className: "team_name"}, student.name),
       for a, idx in lastSubmission.answers
         if a.answer?
           className = "marker complete"
@@ -25,7 +25,7 @@ StudentRow = React.createClass
           score = (span {className: "score_#{a.score}"}, a.score)
         else
           score = (span {}, "")
-        (td {key: student.student_username + idx},
+        (td {key: student.name + idx},
           (div {className: className}, score)
         )
       (td {},

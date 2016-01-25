@@ -9,14 +9,13 @@ StudentDetailsReport = React.createClass
   render: ->
     className = "report_details"
     className = "#{className} hidden-right" if @props.hidden
-    teamName = @props.student?.student_name || 'No Team'
+    teamName = @props.student?.name || 'No Team'
     submissions = _.sortBy(@props.student?.submissions || [], 'id').reverse()
     question = {}
     _.each @props.questions, (q) ->
       question[q.index] = q
 
     renderGroup = (group) ->
-      group = _.map group, (member) -> member.name
       (div {className: 'group-members'}, "Group: #{group.join(', ')}")
 
     renderSubmission = (submission, tryCount) ->
