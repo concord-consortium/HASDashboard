@@ -176,6 +176,7 @@ App = React.createClass
         opened: @state.showNav
         toggle: @toggleNav
         activity: @state.activity
+        students: @state.students
         setPage: @setPage
       )
     )
