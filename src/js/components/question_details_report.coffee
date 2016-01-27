@@ -8,44 +8,43 @@ ScoreImage = React.createFactory require './score_image.coffee'
 {div, h3, p, strong} = React.DOM
 
 QuestionDetailsReport = React.createClass
-
-  getDefaultProps: ->
-    question:
-      index: 0
-      prompt: "No Question"
-    students: []
-
   getAnswers: ->
+    return [] unless @props.question?
     result = []
-    question = @props.question
-    _.each @props.students, (student) ->
+    _.each @props.students, (student) =>
       finalSubmission = _.last student.submissions
-      if finalSubmission
-        _.each finalSubmission.answers, (a) ->
-          if a.question_index == question.index
-            answer =
-              studentName: student.name
-              answer: a.answer
-              score: a.score
-            result.push answer
-    result
+      return unless finalSubmission?
+      a = _.find finalSubmission.answers, (a) => a.question_index == @props.question.index
+      answer =
+        studentName: student.name
+        group: finalSubmission.group
+        groupId: finalSubmission.group_id
+        createdAt: finalSubmission.created_at
+        answer: a.answer
+        score: a.score
+      result.push answer
+    # Remove duplicate answers that have been submitted within the same group + sort them by date.
+    _.sortBy(_.uniq(result, 'groupId'), 'createdAt').reverse()
+
+  getHeader: ->
+    if @props.question? then "Question \##{@props.question.index}" else "No question"
 
   render: ->
     className = "question-details"
     className += " hidden-right" if @props.hidden
-    question = @props.question
-    header = if question? then "Question \##{question.index}" else "No question"
-    answers = if question? then @getAnswers() else []
+    answers = @getAnswers()
 
     (div {className: className},
-      (Scrollable {returnClick: @props.returnClick, header: header},
-        if question
+      (Scrollable {returnClick: @props.returnClick, header: @getHeader()},
+        if @props.question?
           (div {className: "question-details-content"},
-            (div {}, question.prompt)
-            (h3 {}, "Answers")
+            (div {}, @props.question.prompt)
+            (h3 {}, if answers.length > 0 then "Answers" else "No answers")
             _.map answers, (answer) ->
               (div {key: answer.studentName, className: "answer"},
                 (strong {}, answer.studentName)
+                if answer.group
+                  (strong {}, ", " + answer.group.join(", "))
                 (div {}, answer.answer)
                 if answer.score?
                   (p {},
@@ -53,7 +52,6 @@ QuestionDetailsReport = React.createClass
                     (ScoreImage {score: answer.score, width: "50%", height: "35px"})
                   )
               )
-
           )
       )
     )
