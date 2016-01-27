@@ -7,23 +7,25 @@ _ = require 'lodash'
 
 StudentDetailsReport = React.createClass
   render: ->
-    className = "report_details"
+    className = "student-details"
     className = "#{className} hidden-right" if @props.hidden
-    teamName = @props.student?.name || 'No Team'
+    studentName = @props.student?.name || 'No Student'
     submissions = _.sortBy(@props.student?.submissions || [], 'id').reverse()
     question = {}
     _.each @props.questions, (q) ->
       question[q.index] = q
 
     renderGroup = (group) ->
-      (div {className: 'group-members'}, "Group: #{group.join(', ')}")
+      return '' unless group
+      (span {className: 'group-members'}, "(with #{group.join(', ')})")
 
     renderSubmission = (submission, tryCount) ->
       (div {key: submission.id, className: 'try'},
         (div {},
-          (h3 {}, "Try " + tryCount)
-          if submission.group
-            renderGroup(submission.group)
+          (h3 {},
+            "Try #{tryCount}"
+            renderGroup submission.group
+          )
         )
         _.map submission.answers, (ans) ->
           (div {key: ans.question_index, className: 'x'},
@@ -48,17 +50,14 @@ StudentDetailsReport = React.createClass
         )
 
     (div {className: className},
-      (a
-        className: 'return'
-        onClick: @props.returnClick
-        ,
-        "⬅ back"
+      (div {className: "fixed-header"},
+        (a {className: 'return', onClick: @props.returnClick}, "⬅ back")
+        (div {className: "student-name"}, (h2 {}, studentName))
       )
-      (div {className: "teamName"},
-        (h2 {}, teamName)
+      (div {className: "scrollable-content"},
+        for submission, idx in submissions
+          renderSubmission submission, submissions.length - idx
       )
-      for submission, idx in submissions
-        renderSubmission submission, submissions.length - idx
     )
 
 

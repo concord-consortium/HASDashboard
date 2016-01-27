@@ -53,6 +53,7 @@ addGroupsMembers = (students) ->
     groups[groupId] = _.uniq group
   # Add group members to submission objects.
   _.each students, (student) ->
-    _.each student.submissions, (s) ->
-      s.group = groups[s.group_id]
+    _.each student.submissions, (submission) ->
+      # Remove student from its own group. _.without returns copy of an array.
+      submission.group = _.without(groups[submission.group_id], student.name) if submission.group_id?
   students
