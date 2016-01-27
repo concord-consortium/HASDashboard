@@ -1,14 +1,16 @@
-# require '../../css/report_overlay.styl'
+require '../../css/student_details_report.styl'
 
 React = require 'react'
 _ = require 'lodash'
+Scrollable = React.createFactory require './scrollable.coffee'
+ScoreImage = React.createFactory require './score_image.coffee'
 
-{a, div, h2, h3, h4, p, span, strong} = React.DOM
+{div, h3, h4, p, span, strong} = React.DOM
 
 StudentDetailsReport = React.createClass
   render: ->
     className = "student-details"
-    className = "#{className} hidden-right" if @props.hidden
+    className += " hidden-right" if @props.hidden
     studentName = @props.student?.name || 'No Student'
     submissions = _.sortBy(@props.student?.submissions || [], 'id').reverse()
     question = {}
@@ -42,7 +44,7 @@ StudentDetailsReport = React.createClass
                 if ans.score?
                   (p {},
                     (strong {}, "Score:")
-                    (span {className: "score-value score-#{ans.score}"}, " #{ans.score}")
+                    (ScoreImage {score: ans.score, width: "100%"})
                   )
               )
             )
@@ -50,11 +52,7 @@ StudentDetailsReport = React.createClass
         )
 
     (div {className: className},
-      (div {className: "fixed-header"},
-        (a {className: 'return', onClick: @props.returnClick}, "⬅ back")
-        (div {className: "student-name"}, (h2 {}, studentName))
-      )
-      (div {className: "scrollable-content"},
+      (Scrollable {returnClick: @props.returnClick, header: studentName},
         for submission, idx in submissions
           renderSubmission submission, submissions.length - idx
       )
