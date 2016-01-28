@@ -1,69 +1,59 @@
+require '../../css/question_details_report.styl'
+
 React = require 'react'
 _ = require 'lodash'
+Scrollable = React.createFactory require './scrollable.coffee'
+ScoreImage = React.createFactory require './score_image.coffee'
 
-{a, div, h4, p, span, strong} = React.DOM
+{div, h3, p, strong} = React.DOM
 
 QuestionDetailsReport = React.createClass
-
-  getDefaultProps: ->
-    question:
-      index: 0
-      prompt: "No Question"
-    runs: []
-
-  answers: ->
+  getAnswers: ->
+    return [] unless @props.question?
     result = []
-    question = @props.question
-    _.each @props.runs, (run) ->
-      finalSubmission = _.last run.submissions
-      if finalSubmission
-        _.each finalSubmission.answers, (a) ->
-          if a.question_index == question.index
-            answer =
-              studentName: run.student_name
-              studentUsername: run.student_username
-              answer: a.answer
-              score: a.score
-            result.push answer
-    result
+    _.each @props.students, (student) =>
+      finalSubmission = _.last student.submissions
+      return unless finalSubmission?
+      a = _.find finalSubmission.answers, (a) => a.question_index == @props.question.index
+      answer =
+        studentName: student.name
+        group: finalSubmission.group
+        groupId: finalSubmission.group_id
+        createdAt: finalSubmission.created_at
+        answer: a.answer
+        score: a.score
+      result.push answer
+    # Remove duplicate answers that have been submitted within the same group + sort them by date.
+    _.sortBy(_.uniq(result, 'groupId'), 'createdAt').reverse()
+
+  getHeader: ->
+    if @props.question? then "Question \##{@props.question.index}" else "No question"
 
   render: ->
-    className = "report_question_details"
-    question = @props.question
+    className = "question-details"
+    className += " hidden-right" if @props.hidden
+    answers = @getAnswers()
 
     (div {className: className},
-      (a
-        className: 'return'
-        onClick: @props.returnClick
-        ,
-        "⬅ back"
-      )
-      if question
-        (div {key: question.index, className: 'x'},
-          (div {className: 'x'},
-            (div {className: 'question-hdr'},
-              (h4 {}, "Question \##{question.index}")
-            )
-            (div {className: 'question-bd'},
-              (p {}, "#{question.prompt}")
-              (p {},
-                (strong {}, "Answers:")
-                _.map @answers(), (answer) ->
-                  (div {key: answer.studentUsername},
-                    (strong {}, answer.studentName)
-                    (div {}, answer.answer)
-                    if answer.score?
-                      (p {},
-                        (strong {}, "Score:")
-                        (span {className: "score-value score-#{answer.score}"}, " #{answer.score}")
-                      )
+      (Scrollable {returnClick: @props.returnClick, header: @getHeader()},
+        if @props.question?
+          (div {className: "question-details-content"},
+            (div {}, @props.question.prompt)
+            (h3 {}, if answers.length > 0 then "Answers" else "No answers")
+            _.map answers, (answer) ->
+              (div {key: answer.studentName, className: "answer"},
+                (strong {}, answer.studentName)
+                if answer.group
+                  (strong {}, ", " + answer.group.join(", "))
+                (div {}, answer.answer)
+                if answer.score?
+                  (p {},
+                    (strong {}, "Score:")
+                    (ScoreImage {score: answer.score, width: "50%", height: "35px"})
                   )
               )
-            )
           )
-        )
-      else
-        (div {} , "empty")
+      )
     )
 
 

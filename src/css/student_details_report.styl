@@ -1,0 +1,46 @@
+@require 'mixins'
+
+.student-details
+  hidden-sliding()
+  bubbleBox()
+
+  div.x
+    padding 1em
+  div.x:nth-child(even)
+    padding 0
+  div.x
+    div.x
+      float left
+      margin-right 3%
+      margin-bottom 1em
+      padding 0
+      width 47%
+  div.x:nth-child(even), div.x:nth-child(odd)
+    div.x
+      background #fff
+      padding 0
+    .question-hdr
+      background #165ba1
+      color #fff
+      padding 4px 8px
+    .question-bd
+      border solid 1px #ededed
+      border-radius: 0 0 13px 13px
+      height 178px
+      overflow auto
+      padding 20px 20px 13px
+      p
+        margin-top 0
+  h3
+    color #e96f30
+    float left
+    margin-top 0
+    width 100%
+  h4
+    font-weight normal
+    margin 0
+  .group-members
+    color #414141
+    font-size 0.75em
+    font-weight normal
+    margin-left 0.5em

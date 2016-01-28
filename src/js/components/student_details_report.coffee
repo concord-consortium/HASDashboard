@@ -1,25 +1,34 @@
-# require '../../css/report_overlay.styl'
+require '../../css/student_details_report.styl'
 
 React = require 'react'
 _ = require 'lodash'
+Scrollable = React.createFactory require './scrollable.coffee'
+ScoreImage = React.createFactory require './score_image.coffee'
 
-{a, div, h2, h3, h4, p, span, strong} = React.DOM
+{div, h3, h4, p, span, strong} = React.DOM
 
 StudentDetailsReport = React.createClass
   render: ->
-    className = "report_details"
-    className = "#{className} hidden-right" if @props.hidden
-    teamName = @props.student?.student_name || 'No Team'
-    submissions = @props.student?.submissions || []
-    tryCount = 0
+    className = "student-details"
+    className += " hidden-right" if @props.hidden
+    studentName = @props.student?.name || 'No Student'
+    submissions = _.sortBy(@props.student?.submissions || [], 'created_at').reverse()
     question = {}
     _.each @props.questions, (q) ->
       question[q.index] = q
 
-    renderSubmission = (submission) ->
-      tryCount++ # increment try count
+    renderGroup = (group) ->
+      return '' unless group
+      (span {className: 'group-members'}, "with #{group.join(', ')}")
+
+    renderSubmission = (submission, tryCount) ->
       (div {key: submission.id, className: 'try'},
-        (h3 {}, "Try " + tryCount)
+        (div {},
+          (h3 {},
+            "Try #{tryCount}"
+            renderGroup submission.group
+          )
+        )
         _.map submission.answers, (ans) ->
           (div {key: ans.question_index, className: 'x'},
             (div {className: 'x'},
@@ -35,7 +44,7 @@ StudentDetailsReport = React.createClass
                 if ans.score?
                   (p {},
                     (strong {}, "Score:")
-                    (span {className: "score-value score-#{ans.score}"}, " #{ans.score}")
+                    (ScoreImage {score: ans.score, width: "100%"})
                   )
               )
             )
@@ -43,16 +52,10 @@ StudentDetailsReport = React.createClass
         )
 
     (div {className: className},
-      (a
-        className: 'return'
-        onClick: @props.returnClick
-        ,
-        "⬅ back"
+      (Scrollable {returnClick: @props.returnClick, header: studentName},
+        for submission, idx in submissions
+          renderSubmission submission, submissions.length - idx
       )
-      (div {className: "teamName"},
-        (h2 {}, teamName)
-      )
-      _.map submissions, renderSubmission
     )
 
 
