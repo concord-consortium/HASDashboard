@@ -2,6 +2,8 @@ _ = require 'lodash'
 
 FAKE_ACTIVITY_BASE_URL = 'http://concordfake.org'
 
+chars = "abcdefghijklmnoprstuqwx123456789"
+
 names = _.words """
     Sue Jim Matt Laura Sidartha Ron Harry Luna Ginny Max Leon Eva Barny
     Esther Fin Shena Sean Alice Kareem Cala Nima Aisha Chantal Mirka Tam Min
@@ -9,16 +11,20 @@ names = _.words """
     """
 
 randomName = ->
-  _.shuffle(names)
-  names.pop()
+  _.sample(names, 2).join ' '
+
+studentData = (name) ->
+  name: name
+  username: name.replace(' ', '').toLowerCase() + _.random(1, 1000)
+  endpoint_url: _.sample(chars, 15).join('')
 
 students = ->
-  chars = "abcdefghijklmnoprstuqwx123456789"
-  _.times 10, ->
-    name = randomName()
-    name: name
-    username: name + _.random(1, 1000)
-    endpoint_url: _.sample(chars, 15).join('')
+  result = _.times 10, -> studentData randomName()
+  # Add a few students with duplicate names.
+  _.times 2, ->
+    result.push studentData _.sample(result).name
+  result
+
 
 module.exports =
   # If base URL is equal to FAKE_ACTIVITY_BASE_URL,
