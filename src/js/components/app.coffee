@@ -50,13 +50,13 @@ App = React.createClass
       # New students can be added to class or their endpoint_url can be updated once
       # they start an activity.
       @setOffering(params.offering)
-      @setRuns()
+      @setStudents()
     , REPORT_UPDATE_INTERVAL
 
   componentDidUpdate: (prevProps, prevState) ->
     if !_.isEqual(@state.studentsPortalInfo, prevState.studentsPortalInfo) || @state.pageId != prevState.pageId
       # students data depends on students' endpoint URLs and pageId, so when they change, we need to refresh it.
-      @setRuns()
+      @setStudents()
     if @state.activityId != prevState.activityId
       @setActivity()
 
@@ -93,10 +93,10 @@ App = React.createClass
       utils.fakeAjax =>
         setActivity(activityFakeData(@state.activityId))
 
-  setRuns: ->
+  setStudents: ->
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
-    setRuns = (runs) =>
+    setStudents = (runs) =>
       @setState students: dataHelpers.getStudentsData(runs, @state.studentsPortalInfo)
 
     if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
@@ -106,10 +106,13 @@ App = React.createClass
           page_id: @state.pageId,
           endpoint_urls: dataHelpers.getEndpointUrls(@state.studentsPortalInfo)
         dataType: "jsonp"
-        success: setRuns
+        success: setStudents
     else
-      utils.fakeAjax =>
-        setRuns(runsFakeData(@state.studentsPortalInfo, @getQuestions()))
+      # Download data only once, as it's totally random, so it might be annoying for developer
+      # when everything changes every X seconds.
+      if @state.students.length == 0
+        utils.fakeAjax =>
+          setStudents(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.activity))
 
   toggleReport: ->
     showReportNext = not @state.showReport
@@ -176,6 +179,7 @@ App = React.createClass
         opened: @state.showNav
         toggle: @toggleNav
         activity: @state.activity
+        students: @state.students
         setPage: @setPage
       )
     )

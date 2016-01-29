@@ -36,10 +36,17 @@ randomAnswer =
   4: ->
     randomText()
 
+getGroupId = ->
+  result = _.random(1, 20)
+  # 30% chances that there is a group (id != null).
+  if result > 6 then null else result
+
 submissionId = _.random(1, 100)
 getSubmissions = (questions) ->
   _.times _.random(0, 6), ->
     id: submissionId++
+    group_id: getGroupId()
+    created_at: _.now() - _.random(0, 1000000)
     answers: getAnswers(questions)
 
 getAnswers = (questions) ->
@@ -50,8 +57,10 @@ getAnswers = (questions) ->
     feedback_type: if idx % 2 == 0 then "Embeddable::FeedbackItem" else "CRater::FeedbackItem"
     score: if idx % 2 == 0 then null else _.random(1, 5)
 
-module.exports = (students, questions) ->
+module.exports = (students, questions, activity) ->
+  pages = activity.pages
   _.map students, (s) ->
     endpoint_url: s.endpoint_url
+    last_page_id: pages[_.random(0, pages.length - 1)].id
     submissions: getSubmissions(questions)
 
