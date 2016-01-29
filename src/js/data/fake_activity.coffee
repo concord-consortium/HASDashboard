@@ -44,4 +44,9 @@ module.exports = (activityId) ->
       "name": null,
       "prompt": "Explain what influenced your certainty rating."
     }]
+  }, {
+    "name": "Page without arg block",
+    "id": 125,
+    "url": "/activities/#{activityId}/pages/125",
+    "questions": []
   }]
