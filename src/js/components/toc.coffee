@@ -12,6 +12,7 @@ Toc = React.createClass
     # In the future, we can replace [activity] with sequence.activities.
     activityStudents = getActivityStudents [activity], pageStudents
     (div {className: "TOC"},
+      (div {className: "activity-wrap"}, 
         (h3 {},
           (StudentsCount {students: activityStudents[activity.id]})
           activity.name
@@ -29,6 +30,7 @@ Toc = React.createClass
               )
             )
         )
+      )
     )
 
 StudentsCount = React.createFactory React.createClass
