@@ -23,8 +23,11 @@ QuestionDetailsReport = React.createClass
         answer: a.answer
         score: a.score
       result.push answer
-    # Remove duplicate answers that have been submitted within the same group + sort them by date.
-    _.sortBy(_.uniq(result, 'groupId'), 'createdAt').reverse()
+    # Remove duplicate answers that have been submitted within the same group.
+    # _.uniqueId has to be used, as otherwise all the answers with groupId == null would be
+    # reduced to single one by _.uniq.
+    result = _.uniq result, (a) -> if a.groupId? then a.groupId else _.uniqueId('individual-student')
+    _.sortBy(result, 'createdAt').reverse()
 
   getHeader: ->
     if @props.question? then "Question \##{@props.question.index}" else "No question"
