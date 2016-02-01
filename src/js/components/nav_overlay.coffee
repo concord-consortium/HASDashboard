@@ -9,12 +9,22 @@ Toc      = React.createFactory require './toc.coffee'
 Nav = React.createClass
 
   mixins: [Openable]
+  getInitialState: ->
+    activity: null
 
   render: ->
     (div {className:"nav_overlay"},
       (div {className: @className("tab"), onClick: @props.toggle}, "TOC")
       (div {className: @className("content")},
-        (Toc {activity: @props.activity, students: @props.students, setPage: @props.setPage})
+        (Toc {
+          sequence: @props.sequence
+          students: @props.students
+          setPage: @props.setPage
+          activity: @state.activity
+          setActivity: (act_id) =>
+            @setState(activity: act_id)
+          }
+        )
       )
     )
 
