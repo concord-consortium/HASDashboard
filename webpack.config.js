@@ -5,7 +5,6 @@ module.exports = {
   devtool: "#cheap-module-eval-source-map",
   output: {
     path: "./dist/",
-    publicPath: "/public/",
     filename: 'main.js'
   },
   module: {
