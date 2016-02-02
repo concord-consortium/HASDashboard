@@ -9,7 +9,6 @@ NavOverlay        = React.createFactory require './nav_overlay.coffee'
 ReportOverlay     = React.createFactory require './report_overlay.coffee'
 
 offeringFakeData  = require '../data/fake_offering.coffee'
-activityFakeData  = require '../data/fake_activity.coffee'
 sequenceFakeData  = require '../data/fake_sequence.coffee'
 runsFakeData      = require '../data/fake_runs.coffee'
 dataHelpers       = require '../data/helpers.coffee'
@@ -60,9 +59,7 @@ App = React.createClass
     if !_.isEqual(@state.studentsPortalInfo, prevState.studentsPortalInfo) || @state.pageId != prevState.pageId
       # students data depends on students' endpoint URLs and pageId, so when they change, we need to refresh it.
       @setStudents()
-    if @state.activityId != prevState.activityId
-      @setSequence()
-    if @state.sequenceId != prevState.sequenceId
+    if (@state.activityId != prevState.activityId) or (@state.sequenceId != prevState.sequenceId)
       @setSequence()
 
   setOffering: (offeringUrl) ->
@@ -117,7 +114,9 @@ App = React.createClass
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
     setStudents = (runs) =>
-      @setState students: dataHelpers.getStudentsData(runs, @state.studentsPortalInfo)
+      @setState
+        students: dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, @state.pageId)
+        tocStudents: dataHelpers.getTocStudents(runs)
 
     if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
       $.ajax
@@ -205,7 +204,7 @@ App = React.createClass
         opened: @state.showNav
         toggle: @toggleNav
         sequence: @state.sequence
-        students: @state.students
+        students: @state.tocStudents
         setPage: @setPage
       )
     )
