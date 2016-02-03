@@ -35,7 +35,7 @@ App = React.createClass
     students: []
     sequence: null
     showReport: false
-    showNav: false
+    showNav: true
     nowShowing: ShowingOverview
     selectedStudent: null
     selectedQuestion: null

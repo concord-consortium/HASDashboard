@@ -22,7 +22,10 @@ Nav = React.createClass
           setPage: @props.setPage
           activity: @state.activity
           setActivity: (act_id) =>
-            @setState(activity: act_id)
+            if act_id is @state.activity
+              @setState(activity: null)
+            else
+              @setState(activity: act_id)
           }
         )
       )

@@ -21,8 +21,8 @@ StudentRow = React.createClass
         else
           className = "marker incomplete"
         if a.score?
-          className += " score_#{a.score}"
-          score = (span {className: "score_#{a.score}"}, a.score)
+          className += " score_#{a.score + 1}"
+          score = (span {className: "score_#{a.score + 1}"}, a.score + 1)
         else
           score = (span {}, "")
         (td {key: student.name + idx},

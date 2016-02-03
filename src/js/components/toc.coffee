@@ -10,16 +10,19 @@ Toc = React.createClass
     return (div {}) unless sequence?
     pageStudents = getPageStudents @props.students
     # In the future, we can replace [activity] with sequence.activities.
-    acts = _.map sequence.activities, (activity) =>
+    acts = _.map sequence.activities, (activity, act_indx) =>
       activityStudents = getActivityStudents [activity], pageStudents
       act = @props.activity
       show_activity = act == activity.id
 
       className = if show_activity then "activity" else "activity hidden"
-      (div {className: className, onClick: (e) => @props.setActivity(activity.id)},
-        (h3 {},
+      name = _.trunc "#{act_indx + 1}: #{activity.name}", {length: 36, ommission: " …" }
+      (div {className: className},
+        (h3 {
+          onClick: (e) => @props.setActivity(activity.id),
+          onTouchEnd: (e) => @props.setActivity(activity.id) },
           (StudentsCount {students: activityStudents[activity.id]})
-          activity.name
+          name
         )
         (ul {},
           _.map activity.pages, (p, indx) =>
@@ -28,7 +31,7 @@ Toc = React.createClass
               (PageLink
                 id: p.id
                 url: p.url
-                name: p.name
+                name: "#{indx + 1}. #{p.name}"
                 index: indx + 1
                 setPage: @props.setPage
               )
