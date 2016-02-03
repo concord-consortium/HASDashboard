@@ -57,10 +57,15 @@ getAnswers = (questions) ->
     feedback_type: if idx % 2 == 0 then "Embeddable::FeedbackItem" else "CRater::FeedbackItem"
     score: if idx % 2 == 0 then null else _.random(1, 5)
 
-module.exports = (students, questions, activity) ->
-  pages = activity.pages
+module.exports = (students, questions, sequence) ->
+  page_array = []
+  _.each sequence.activities, (activity) ->
+    page_array.push activity.pages
+  pages = _.flatten page_array
+
   _.map students, (s) ->
     endpoint_url: s.endpoint_url
     last_page_id: pages[_.random(0, pages.length - 1)].id
     submissions: getSubmissions(questions)
+    sequence_id: 201
 

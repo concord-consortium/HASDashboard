@@ -9,7 +9,7 @@ NavOverlay        = React.createFactory require './nav_overlay.coffee'
 ReportOverlay     = React.createFactory require './report_overlay.coffee'
 
 offeringFakeData  = require '../data/fake_offering.coffee'
-activityFakeData  = require '../data/fake_activity.coffee'
+sequenceFakeData  = require '../data/fake_sequence.coffee'
 runsFakeData      = require '../data/fake_runs.coffee'
 dataHelpers       = require '../data/helpers.coffee'
 utils             = require '../utils.coffee'
@@ -19,6 +19,7 @@ ShowingStudentDetails  = "ShowingStudentDetails"
 ShowingQuestionDetails = "ShowingQuestionDetails"
 
 ACTIVITY_ID_REGEXP = /activities\/(\d+)/
+SEQUENCE_ID_REGEXP = /sequences\/(\d+)/
 REPORT_UPDATE_INTERVAL = 15000 # ms
 
 {div} = React.DOM
@@ -27,11 +28,12 @@ App = React.createClass
   getInitialState: ->
     laraBaseUrl: null
     activityId: null
+    sequenceId: null
     pageId: null
     pageUrl: null
     studentsPortalInfo: []
     students: []
-    activity: null
+    sequence: null
     showReport: false
     showNav: false
     nowShowing: ShowingOverview
@@ -57,15 +59,23 @@ App = React.createClass
     if !_.isEqual(@state.studentsPortalInfo, prevState.studentsPortalInfo) || @state.pageId != prevState.pageId
       # students data depends on students' endpoint URLs and pageId, so when they change, we need to refresh it.
       @setStudents()
-    if @state.activityId != prevState.activityId
-      @setActivity()
+    if (@state.activityId != prevState.activityId) or (@state.sequenceId != prevState.sequenceId)
+      @setSequence()
 
   setOffering: (offeringUrl) ->
     setOffering = (data) =>
+      activityId = null
+      sequenceId = null
+      if data.activity_url.match(ACTIVITY_ID_REGEXP)
+        activityId= data.activity_url.match(ACTIVITY_ID_REGEXP)[1]
+      if data.activity_url.match(SEQUENCE_ID_REGEXP)
+        sequenceId= data.activity_url.match(SEQUENCE_ID_REGEXP)[1]
+
       @setState
         studentsPortalInfo: data.students
         laraBaseUrl: utils.baseUrl(data.activity_url)
-        activityId: data.activity_url.match(ACTIVITY_ID_REGEXP)[1]
+        activityId: activityId
+        sequenceId: sequenceId
 
     if offeringUrl
       $.ajax
@@ -76,28 +86,37 @@ App = React.createClass
       utils.fakeAjax ->
         setOffering(offeringFakeData)
 
-  setActivity: ->
-    setActivity = (activity) =>
-      firstPage = activity.pages[0]
+  setSequence: ->
+    setSequence = (sequence) =>
+      firstPage = sequence.activities[0].pages[0]
       @setState
-        activity: activity
+        sequence: sequence
         pageId: firstPage.id
         pageUrl: "#{@state.laraBaseUrl}/#{firstPage.url}"
 
     if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
+      resources = "activities"
+      id = @state.activityId
+      if @state.sequenceId
+        resources = "sequences"
+        id = @state.sequenceId
+      url = "#{@state.laraBaseUrl}/#{resources}/#{id}/dashboard_toc"
       $.ajax
-        url: "#{@state.laraBaseUrl}/activities/#{@state.activityId}/dashboard_toc"
+        url: url
         dataType: "jsonp"
-        success: setActivity
+        success: setSequence
     else
       utils.fakeAjax =>
-        setActivity(activityFakeData(@state.activityId))
+        data = sequenceFakeData(@state.activityId)
+        setSequence(data)
 
   setStudents: ->
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
     setStudents = (runs) =>
-      @setState students: dataHelpers.getStudentsData(runs, @state.studentsPortalInfo)
+      @setState
+        students: dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, @state.pageId)
+        tocStudents: dataHelpers.getTocStudents(runs)
 
     if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
       $.ajax
@@ -112,7 +131,7 @@ App = React.createClass
       # when everything changes every X seconds.
       if @state.students.length == 0
         utils.fakeAjax =>
-          setStudents(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.activity))
+          setStudents(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
 
   toggleReport: ->
     showReportNext = not @state.showReport
@@ -151,8 +170,14 @@ App = React.createClass
       selectedStudent: null
 
   getQuestions: ->
-    return [] unless @state.activity
-    (_.find @state.activity.pages, (p) => p.id == @state.pageId).questions
+    return [] unless @state.sequence
+    pages = @state.sequence.activities.map (a) -> a.pages
+    pages = _.flatten pages
+    page = (_.find pages, (p) => p.id == @state.pageId)
+
+    return [] unless page.questions
+    page.questions
+
 
   render: ->
     (div {className: "app"},
@@ -178,8 +203,8 @@ App = React.createClass
       (NavOverlay
         opened: @state.showNav
         toggle: @toggleNav
-        activity: @state.activity
-        students: @state.students
+        sequence: @state.sequence
+        students: @state.tocStudents
         setPage: @setPage
       )
     )

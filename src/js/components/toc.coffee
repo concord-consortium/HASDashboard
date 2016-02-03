@@ -6,13 +6,17 @@ React = require 'react'
 
 Toc = React.createClass
   render: ->
-    activity = @props.activity
-    return (div {}) unless activity?
+    sequence = @props.sequence
+    return (div {}) unless sequence?
     pageStudents = getPageStudents @props.students
     # In the future, we can replace [activity] with sequence.activities.
-    activityStudents = getActivityStudents [activity], pageStudents
-    (div {className: "TOC"},
-      (div {className: "activity-wrap"}, 
+    acts = _.map sequence.activities, (activity) =>
+      activityStudents = getActivityStudents [activity], pageStudents
+      act = @props.activity
+      show_activity = act == activity.id
+
+      className = if show_activity then "activity" else "activity hidden"
+      (div {className: className, onClick: (e) => @props.setActivity(activity.id)},
         (h3 {},
           (StudentsCount {students: activityStudents[activity.id]})
           activity.name
@@ -31,7 +35,13 @@ Toc = React.createClass
             )
         )
       )
+    return (div {className: "TOC"},
+      (div {className: "activity-wrap"},
+        acts or ""
+      )
     )
+
+
 
 StudentsCount = React.createFactory React.createClass
   render: ->
