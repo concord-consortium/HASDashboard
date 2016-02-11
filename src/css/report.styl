@@ -1,9 +1,5 @@
 @require 'mixins'
 
-score_color(n)
-  font-weight bold
-  color hsl((n - 1) * 30, 100%, 80%)
-
 selectable_row(hue)
   tr:nth-child(2n)
     background-color hsl(hue,0,93)
@@ -76,6 +72,9 @@ table
   div.marker.score_-1 // test score
     background-color hsl(16,73,56)
     color hsl(0,0,100%)
+  div.marker.score_0
+    background-color rgb(190,34,40)
+    color hsl(0,0,100%)
   div.marker.score_1
     background-color rgb(190,34,40)
     color hsl(0,0,100%)
@@ -89,6 +88,9 @@ table
     background-color rgb(127,194,65)
     color hsl(0,0,100%)
   div.marker.score_5
+    background-color rgb(26,155,72)
+    color hsl(0,0,100%)
+  div.marker.score_6
     background-color rgb(26,155,72)
     color hsl(0,0,100%)
 
