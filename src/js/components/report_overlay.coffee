@@ -12,12 +12,23 @@ ReportOverlay = React.createClass
 
   mixins: [openable]
 
+  # List of students sorted from most recently updated to least.
+  # Those who have no submissions are at the bottom of the list.
+  sorted_students: ->
+    _.sortBy(@props.data.students, (value) ->
+      if not value.submissions
+        0
+      else
+        v = _.max(value.submissions, 'created_at')
+        v.created_at
+    ).reverse()
+
   render: ->
     (div {className: "report_overlay"},
       (div {className: @className("tab"), onClick: @props.toggle}, "Report")
       (div {className: @className("content")},
         (Report
-          students: @props.data.students
+          students: @sorted_students()
           questions: @props.questions
           hidden: @props.hideOverviewReport
           clickStudent: @props.onShowStudentDetails
