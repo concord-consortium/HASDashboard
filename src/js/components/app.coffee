@@ -9,7 +9,6 @@ NavOverlay        = React.createFactory require './nav_overlay.coffee'
 ReportOverlay     = React.createFactory require './report_overlay.coffee'
 
 offeringFakeData  = require '../data/fake_offering.coffee'
-sequenceFakeData  = require '../data/fake_sequence.coffee'
 runsFakeData      = require '../data/fake_runs.coffee'
 dataHelpers       = require '../data/helpers.coffee'
 utils             = require '../utils.coffee'
@@ -94,21 +93,17 @@ App = React.createClass
         pageId: firstPage.id
         pageUrl: "#{@state.laraBaseUrl}/#{firstPage.url}"
 
-    if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
-      resources = "activities"
-      id = @state.activityId
-      if @state.sequenceId
-        resources = "sequences"
-        id = @state.sequenceId
-      url = "#{@state.laraBaseUrl}/#{resources}/#{id}/dashboard_toc"
-      $.ajax
-        url: url
-        dataType: "jsonp"
-        success: setSequence
-    else
-      utils.fakeAjax =>
-        data = sequenceFakeData(@state.activityId)
-        setSequence(data)
+    resources = "activities"
+    id = @state.activityId
+    if @state.sequenceId
+      resources = "sequences"
+      id = @state.sequenceId
+    url = "#{@state.laraBaseUrl}/#{resources}/#{id}/dashboard_toc"
+    $.ajax
+      url: url
+      dataType: "jsonp"
+      success: setSequence
+
 
   setStudents: ->
     # Wait till we have both page ID and studentsPortalInfo list.

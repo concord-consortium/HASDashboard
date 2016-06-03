@@ -1,37 +1,37 @@
-_ = require 'lodash'
-
-FAKE_ACTIVITY_BASE_URL = 'http://concordfake.org'
-
-chars = "abcdefghijklmnoprstuqwx123456789"
-
-names = _.words """
-    Sue Jim Matt Laura Sidartha Ron Harry Luna Ginny Max Leon Eva Barny
-    Esther Fin Shena Sean Alice Kareem Cala Nima Aisha Chantal Mirka Tam Min
-    Shen Isaac
-    """
-
-randomName = ->
-  _.sample(names, 2).join ' '
-
-studentData = (name) ->
-  name: name
-  username: name.replace(' ', '').toLowerCase() + _.random(1, 1000)
-  endpoint_url: _.sample(chars, 15).join('')
-
-students = ->
-  result = _.times 10, -> studentData randomName()
-  # Add a few students with duplicate names.
-  _.times 2, ->
-    result.push studentData _.sample(result).name
-  result
-
-
-module.exports =
-  # If base URL is equal to FAKE_ACTIVITY_BASE_URL,
-  # app will use other fake data too (activity and runs).
-  # Otherwise, it will issue real ajax requests, so you can
-  # provide URL to your local LARA instance here and endpoint URLs.
-  activity_url: "#{FAKE_ACTIVITY_BASE_URL}/activities/123"
-  students: students()
-
-  FAKE_ACTIVITY_BASE_URL: FAKE_ACTIVITY_BASE_URL
+module.exports = {
+  "teacher": "Sarah Pryputniewicz",
+  "clazz": "HASBot Sharing",
+  "activity": "Contextualized HASBOT Will there be enough fresh water?",
+  "activity_url": "http://authoring.concord.org/sequences/171",
+  "students": [{
+    "name": "Student One",
+    "username": "sone1",
+    "started_activity": true,
+    "endpoint_url": "http://has.portal.concord.org/dataservice/external_activity_data/561e2b98-c1a5-4ecb-84a4-c53f77ec1457"
+  }, {
+    "name": "Student Two",
+    "username": "stwo1",
+    "started_activity": true,
+    "endpoint_url": "http://has.portal.concord.org/dataservice/external_activity_data/fbf0e9ab-32aa-498e-86e2-1a2cd496fc8e"
+  }, {
+    "name": "Student Three",
+    "username": "sthree1",
+    "started_activity": true,
+    "endpoint_url": "http://has.portal.concord.org/dataservice/external_activity_data/bd126da5-f061-49a6-882b-f6795a59a82b"
+  }, {
+    "name": "Student Four",
+    "username": "sfour",
+    "started_activity": true,
+    "endpoint_url": "http://has.portal.concord.org/dataservice/external_activity_data/54f6de09-964c-40ae-b67f-a6178ce8ed96"
+  }, {
+    "name": "Student Five",
+    "username": "sfive",
+    "started_activity": true,
+    "endpoint_url": "http://has.portal.concord.org/dataservice/external_activity_data/4d2208c7-b5ee-40d1-85fd-c1b57ed51037"
+  }, {
+    "name": "Hui Xiong",
+    "username": "hxiong",
+    "started_activity": false,
+    "endpoint_url": null
+  }]
+}
