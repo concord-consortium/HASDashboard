@@ -4,7 +4,7 @@ module.exports = {
   "activity": "Contextualized HASBOT Will there be enough fresh water?",
   "activity_url": "http://authoring.concord.org/sequences/171",
   "students": [{
-    "name": "Student One",
+    "name": "Student One has a long name",
     "username": "sone1",
     "started_activity": true,
     "endpoint_url": "http://has.portal.concord.org/dataservice/external_activity_data/561e2b98-c1a5-4ecb-84a4-c53f77ec1457"

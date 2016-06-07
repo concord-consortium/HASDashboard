@@ -47,13 +47,33 @@ Toc = React.createClass
 
 
 StudentsCount = React.createFactory React.createClass
+  getInitialState: ->
+    showToolTip: false
+  toggleToolTip: (e) ->
+    if(@state.showToolTip)
+      @hideToolTip()
+    else
+      @showToolTip(e)
+
+  hideToolTip: ->
+    @setState
+      showToolTip: false
+  showToolTip: (e) ->
+    e.stopPropagation()
+    @setState
+      showToolTip: true
   render: ->
+    showToolTip = @state.showToolTip
     (div {className: 'students-count'},
       # Don't display 0.
       if @props.students.length > 0
-        (div {},
-          (div {className: 'students-count-bg'})
+        (div {onTouchEnd: @toggleToolTip, onMouseEnter: @showToolTip, onMouseLeave: @hideToolTip},
+          (div {className: 'students-count-bg',  })
           (div {className: 'students-count-value'}, @props.students.length)
+          if(showToolTip)
+            (div {className: 'student-names', onTouchEnd: @hideToolTip}, _.map(@props.students, (st) =>
+              (div {key: st.name}, st.name))
+            )
         )
     )
 

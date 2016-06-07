@@ -4,21 +4,15 @@ _ = require 'lodash'
 # They have the same endpoint_url so we need to
 # find the last page by using updated_at information
 # in order to generate the head-count numbers in the view
-exports.getTocStudents = (runs) ->
+exports.getTocStudents = (runs, studentsPortalInfo) ->
   lastRuns = {}
   _.each runs, (run) ->
     last = lastRuns[run.endpoint_url] ||= run
     if run.updated_at > last.updated_at
       lastRuns[run.endpoint_url] = run
-  _.chain(lastRuns)
-  .values()
-  .map( (run) ->
-    {
-      lastPageId: run.last_page_id
-      submissions: run.submissions
-      lastPageId: run.last_page_id
-    }
-  ).value()
+  return getBasicStudentData(_.values(lastRuns), studentsPortalInfo)
+
+
 
 # Combines runs data provided by LARA and students data provided by Portal.
 exports.getStudentsData = (runs, studentsPortalInfo, page_id) ->

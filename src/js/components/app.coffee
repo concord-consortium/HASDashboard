@@ -109,9 +109,11 @@ App = React.createClass
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
     setStudents = (runs) =>
+      students = dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, @state.pageId)
+      tocStudents = dataHelpers.getTocStudents(runs, @state.studentsPortalInfo)
       @setState
-        students: dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, @state.pageId)
-        tocStudents: dataHelpers.getTocStudents(runs)
+        students: students
+        tocStudents: tocStudents
 
     if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
       $.ajax
