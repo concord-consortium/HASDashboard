@@ -23,43 +23,58 @@
   ul
     font-size 0.9em
     list-style none
-    padding-left 1.6em
+    padding-left .5em
     li
       font-weight normal
+      list-style none
+      display flex
+      flex-direction row
+      flex-wrap nowrap
+      justify-content flex-start
+      align-items center
       a
         color #459ace
-        display: block;
-        margin: -1.5em 0 0 2.25em;
-        min-height: 2em;
+        display block
         text-decoration none
         &:hover
           color hsl(187,45,20)
+  .marker
+    width 2em
+    height 2em
+    margin-right .1em
+    display flex
+    align-items center
+    justify-items center
+    align-content center
+    justify-content center
+    text-align center
+
+  .page-link
+    &.current
+      color hsl(187,45,20)
+      font-weight bold
+  .question
+    color hsl(210, 75%, 36%)
+    font-size 14pt
+    font-weight bold
 
   .students-count
-    display inline-block
-    position relative
-    font-size 1.75em
-    width 1.2em
-    height 1.16em
-    margin-right 0.25em
-    text-align center
-  .students-count-bg
-    display inline-block
-    position absolute
-    left 0
-    top 0
     width 100%
     height 100%
-    background-image url(../img/students_count_bg.png)
-    background-size 100% 100%
-  .students-count-value
-    display inline-block
-    position absolute
-    left -1px
-    top 50%
-    width 100%
     text-align center
-    font-size 0.5em
+    background-size cover
+    background-image url(../img/students_count_bg.png)
+    position: relative
+    .students-count-value
+      position absolute
+      top  1em
+      font-size 1em
+      left 0px
+      width 100%
+      height 100%
+
+
+
   .student-names
     left: 40px
     min-width: 200px
@@ -79,10 +94,6 @@
       margin 0.2em
       margin-left 1em
       text-wrap none
-  li
-    .students-count-value
-      left 0
-      top 45%
 
   .activity-wrap
     height: 90%;

@@ -26,14 +26,21 @@ Toc = React.createClass
         )
         (ul {},
           _.map activity.pages, (p, indx) =>
+            hasQuestion = p.questions.length > 0
             (li  {key: p.id},
               (StudentsCount {students: pageStudents[p.id] || []})
+              (QuestionMarker {hasQuestion: hasQuestion})
               (PageLink
                 id: p.id
                 url: p.url
+                current: p.id == @state?.pageId
+                hasQuestions: p.questions.length > 0
                 name: "#{indx + 1}. #{p.name}"
                 index: indx + 1
-                setPage: @props.setPage
+                setPage: (id,url) =>
+                  @props.setPage(id, url)
+                  @setState
+                    pageId: id
               )
             )
         )
@@ -64,11 +71,10 @@ StudentsCount = React.createFactory React.createClass
       showToolTip: true
   render: ->
     showToolTip = @state.showToolTip
-    (div {className: 'students-count'},
+    (div {className: 'marker'},
       # Don't display 0.
       if @props.students.length > 0
-        (div {onTouchEnd: @toggleToolTip, onMouseEnter: @showToolTip, onMouseLeave: @hideToolTip},
-          (div {className: 'students-count-bg',  })
+        (div {className: 'students-count', onTouchEnd: @toggleToolTip, onMouseEnter: @showToolTip, onMouseLeave: @hideToolTip},
           (div {className: 'students-count-value'}, @props.students.length)
           if(showToolTip)
             (div {className: 'student-names', onTouchEnd: @hideToolTip}, _.map(@props.students, (st) =>
@@ -77,12 +83,22 @@ StudentsCount = React.createFactory React.createClass
         )
     )
 
+QuestionMarker = React.createFactory React.createClass
+  render: ->
+    className = "marker question"
+    content = ""
+    content = "★" if  @props.hasQuestion
+    (div {className: className}, content)
+
+
 PageLink = React.createFactory React.createClass
   onClick: (e) ->
     e.preventDefault()
     @props.setPage(@props.id, @props.url)
   render: ->
-    (a {href: @props.url, onClick: @onClick}, @props.name or "Page #{@props.index}")
+    className = "page-link"
+    className += " current" if @props.current
+    (a {href: @props.url, onClick: @onClick, className: className}, @props.name or "Page #{@props.index}")
 
 getPageStudents = (students) ->
   _.reduce students, (result, s) ->
