@@ -65,6 +65,7 @@
     background-size cover
     background-image url(../img/students_count_bg.png)
     position: relative
+    cursor: default
     .students-count-value
       position absolute
       top  1em
@@ -73,10 +74,8 @@
       width 100%
       height 100%
 
-
-
   .student-names
-    left: 40px
+    left: 35px
     min-width: 200px
     background-color hsla(43, 85%, 55%, 1.0);
     box-shadow 1px 1px 3px hsla(33, 34%, 0%, 0.25)
@@ -85,7 +84,9 @@
     overflow hidden
     padding 0.2em
     border-radius 4px
-    div
+    cursor: default
+    .name
+      display: block
       font-size 10pt
       line-height 1.4em
       text-align left
@@ -94,6 +95,8 @@
       margin 0.2em
       margin-left 1em
       text-wrap none
+    .name.clickable:hover
+      cursor: pointer
 
   .activity-wrap
     height: 90%;
@@ -111,3 +114,6 @@
 
   .activity.hidden > ul
     display none
+
+   .activity:hover
+     cursor: pointer

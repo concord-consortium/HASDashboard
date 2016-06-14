@@ -29,7 +29,6 @@ App = React.createClass
     activityId: null
     sequenceId: null
     pageId: null
-    pageUrl: null
     studentsPortalInfo: []
     students: []
     sequence: null
@@ -91,7 +90,6 @@ App = React.createClass
       @setState
         sequence: sequence
         pageId: firstPage.id
-        pageUrl: "#{@state.laraBaseUrl}/#{firstPage.url}"
 
     resources = "activities"
     id = @state.activityId
@@ -158,28 +156,28 @@ App = React.createClass
     @setState
       nowShowing: ShowingOverview
 
-  setPage: (pageId, pageUrl) ->
+  setPage: (pageId) ->
     @setState
       pageId: pageId
-      pageUrl: "#{@state.laraBaseUrl}/#{pageUrl}"
       nowShowing: ShowingOverview
       selectedQuestion: null
       selectedStudent: null
 
+  getCurrentPage: ->
+    pages = @state.sequence?.activities.map (a) -> a.pages
+    pages = _.flatten pages
+    _.find pages, (p) => p.id == @state.pageId
+
   getQuestions: ->
     return [] unless @state.sequence
-    pages = @state.sequence.activities.map (a) -> a.pages
-    pages = _.flatten pages
-    page = (_.find pages, (p) => p.id == @state.pageId)
-
-    return [] unless page.questions
-    page.questions
-
+    @getCurrentPage().questions || []
 
   render: ->
+    page = @getCurrentPage()
+
     (div {className: "app"},
       (ActivityBackround
-        pageUrl: @state.pageUrl
+        pageUrl: if page then "#{@state.laraBaseUrl}/#{page.url}" else null
       )
       (ReportOverlay
         opened: @state.showReport

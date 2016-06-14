@@ -2,26 +2,37 @@ require '../../css/toc.styl'
 _ = require 'lodash'
 React = require 'react'
 
-{div, h3, ul, li, a, span} = React.DOM
+{div, h3, ul, li, a} = React.DOM
 
 Toc = React.createClass
-  render: ->
-    sequence = @props.sequence
-    return (div {}) unless sequence?
-    pageStudents = getPageStudents @props.students
-    # In the future, we can replace [activity] with sequence.activities.
-    acts = _.map sequence.activities, (activity, act_indx) =>
-      activityStudents = getActivityStudents [activity], pageStudents
-      act = @props.activity
-      show_activity = act == activity.id
+  getInitialState: ->
+    currentPageId: null
 
-      className = if show_activity then "activity" else "activity hidden"
+  setPage: (id) ->
+    @props.setPage id
+    @setState currentPageId: id
+
+  render: ->
+    {currentPageId} = @state
+    {sequence, students, selectedActivity, selectActivity} = @props
+    return (div {}) unless sequence?
+    pageStudents = getPageStudents students
+    activityStudents = getActivityStudents sequence.activities, pageStudents
+    acts = _.map sequence.activities, (activity, act_indx) =>
+      actSelected = selectedActivity == activity.id
+      className = if actSelected then "activity" else "activity hidden"
       name = _.trunc "#{act_indx + 1}: #{activity.name}", {length: 36, ommission: " …" }
       (div {className: className},
         (h3 {
-          onClick: (e) => @props.setActivity(activity.id),
-          onTouchEnd: (e) => @props.setActivity(activity.id) },
-          (StudentsCount {students: activityStudents[activity.id]})
+          onClick: () => selectActivity(activity.id),
+          onTouchEnd: () => selectActivity(activity.id) },
+          (StudentsCount
+            students: activityStudents[activity.id],
+            setPage: (id) =>
+              @setPage(id)
+              # Show activity pages if it's not already visible.
+              selectActivity(activity.id) unless actSelected
+          )
           name
         )
         (ul {},
@@ -33,14 +44,11 @@ Toc = React.createClass
               (PageLink
                 id: p.id
                 url: p.url
-                current: p.id == @state?.pageId
+                current: p.id == currentPageId
                 hasQuestions: p.questions.length > 0
                 name: "#{indx + 1}. #{p.name}"
                 index: indx + 1
-                setPage: (id,url) =>
-                  @props.setPage(id, url)
-                  @setState
-                    pageId: id
+                setPage: @setPage
               )
             )
         )
@@ -56,6 +64,7 @@ Toc = React.createClass
 StudentsCount = React.createFactory React.createClass
   getInitialState: ->
     showToolTip: false
+
   toggleToolTip: (e) ->
     if(@state.showToolTip)
       @hideToolTip()
@@ -65,12 +74,20 @@ StudentsCount = React.createFactory React.createClass
   hideToolTip: ->
     @setState
       showToolTip: false
+
   showToolTip: (e) ->
     e.stopPropagation()
     @setState
       showToolTip: true
+
+  onNameClick: (e, studentData) ->
+    e.stopPropagation()
+    {setPage} = @props
+    setPage(studentData.lastPageId) if setPage
+
   render: ->
-    showToolTip = @state.showToolTip
+    {showToolTip} = @state
+    {setPage} = @props
     (div {className: 'marker'},
       # Don't display 0.
       if @props.students.length > 0
@@ -78,7 +95,11 @@ StudentsCount = React.createFactory React.createClass
           (div {className: 'students-count-value'}, @props.students.length)
           if(showToolTip)
             (div {className: 'student-names', onTouchEnd: @hideToolTip}, _.map(@props.students, (st) =>
-              (div {key: st.name}, st.name))
+              (a {
+                key: st.name,
+                className: if setPage then 'name clickable' else 'name',
+                onClick: (e) => @onNameClick(e, st)
+              }, st.name))
             )
         )
     )
@@ -94,7 +115,8 @@ QuestionMarker = React.createFactory React.createClass
 PageLink = React.createFactory React.createClass
   onClick: (e) ->
     e.preventDefault()
-    @props.setPage(@props.id, @props.url)
+    @props.setPage @props.id
+
   render: ->
     className = "page-link"
     className += " current" if @props.current
