@@ -20,8 +20,8 @@ Nav = React.createClass
           sequence: @props.sequence
           students: @props.students
           setPage: @props.setPage
-          activity: @state.activity
-          setActivity: (act_id) =>
+          selectedActivity: @state.activity
+          selectActivity: (act_id) =>
             if act_id is @state.activity
               @setState(activity: null)
             else
