@@ -1,6 +1,7 @@
 require '../../css/toc.styl'
 _ = require 'lodash'
 React = require 'react'
+onClickOutside = require('react-onclickoutside')
 
 {div, h3, ul, li, a} = React.DOM
 
@@ -65,7 +66,10 @@ Toc = React.createClass
       )
     )
 
-StudentsCount = React.createFactory React.createClass
+
+# onClickOutside ( https://github.com/Pomax/react-onclickoutside )
+# handles closing our student list when something else is clicked..
+StudentsCount = React.createFactory onClickOutside React.createClass
   getInitialState: ->
     showToolTip: false
 
@@ -102,7 +106,7 @@ StudentsCount = React.createFactory React.createClass
     (div {className: 'marker'},
       # Don't display 0.
       if @props.students.length > 0
-        (div {className: 'students-count', onTouchTap: @toggleToolTip, onMouseEnter: @showToolTip, onMouseLeave: @hideToolTip},
+        (div {className: 'students-count', onClick: @toggleToolTip, onTouchTap: @toggleToolTip},
           (div {className: 'students-count-value'}, @props.students.length)
           if showToolTip
             (div {className: 'student-names'}, _.map(@props.students, (st) =>
