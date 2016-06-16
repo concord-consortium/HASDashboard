@@ -22,4 +22,4 @@ config = {
   }
 }
 
-rollbar.init config
+rollbar.init config if env != 'local'
