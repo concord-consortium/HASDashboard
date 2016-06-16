@@ -28,7 +28,7 @@ Toc = React.createClass
       actSelected = selectedActivity == activity.id
       className = if actSelected then "activity" else "activity hidden"
       name = _.trunc "#{act_indx + 1}: #{activity.name}", {length: 36, ommission: " …" }
-      (div {className: className},
+      (div {className: className, key:activity.id},
         (h3 {
           onTouchTap: (e) => @handleActivityClick(e, activity.id)
           onClick: (e) => @handleActivityClick(e, activity.id),
