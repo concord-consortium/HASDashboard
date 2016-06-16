@@ -16,17 +16,20 @@ StudentRow = React.createClass
     (tr {onClick: @doClick, className: "student_row selectable"},
       (th {className: "team_name"}, student.name),
       for a, idx in lastSubmission.answers
-        if a.answer?
+        max_score = a.max_score || 6
+        score = a.score
+        answer = a.answer
+        if answer?
           className = "marker complete"
         else
           className = "marker incomplete"
-        if a.score?
-          className += " score_#{a.score}"
-          score = (span {className: "score_#{a.score}"}, a.score)
+        if score?
+          className += " score_#{score} max_score_#{max_score}"
+          scoreDiv = (span {className: "score_#{score}"}, "#{score}")
         else
-          score = (span {}, "")
+          scoreDiv = (span {}, "")
         (td {key: student.name + idx},
-          (div {className: className}, score)
+          (div {className: className}, scoreDiv)
         )
       (td {},
         if !student.submissions || student.submissions.length < 1

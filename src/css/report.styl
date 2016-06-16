@@ -62,37 +62,58 @@ table
     padding 1px 0 0 0
     text-align center
 
-    &.complete
-      background-color hsl(0,0,67)
-
     &.incomplete
       background-color white
       border solid 1px #aaa;
 
-  div.marker.score_-1 // test score
-    background-color hsl(16,73,56)
-    color hsl(0,0,100%)
-  div.marker.score_0
-    background-color rgb(190,34,40)
-    color hsl(0,0,100%)
-  div.marker.score_1
-    background-color rgb(190,34,40)
-    color hsl(0,0,100%)
-  div.marker.score_2
-    background-color rgb(241,87,34)
-    color hsl(0,0,100%)
-  div.marker.score_3
-    background-color rgb(250,176,23)
-    color hsl(0,0,100%)
-  div.marker.score_4
-    background-color rgb(127,194,65)
-    color hsl(0,0,100%)
-  div.marker.score_5
-    background-color rgb(26,155,72)
-    color hsl(0,0,100%)
-  div.marker.score_6
-    background-color rgb(26,155,72)
-    color hsl(0,0,100%)
+    &.complete
+      background-color hsl(0,0,67)
+      color hsl(0,0,100)
+
+      &.max_score_6
+        &.score_-1 // test score
+          background-color hsl(0,0,0)
+
+        &.score_0
+          background-color hsl(0,0,0)
+
+        &.score_1
+          background-color hsl(354,100, 33)
+
+        &.score_2
+          background-color hsl(16, 73, 56)
+
+        &.score_3
+          background-color hsl(42, 90, 55)
+
+        &.score_4
+          background-color hsl(68, 65, 50)
+
+        &.score_5
+          background-color hsl(86, 63, 55)
+
+        &.score_6
+          background-color hsl(90, 42, 46)
+
+      &.max_score_4
+        &.score_-1 // test score
+          background-color hsl(0,0,0)
+
+        &.score_0
+          background-color hsl(0,0,0)
+
+        &.score_1
+          background-color hsl(354,100, 33)
+
+        &.score_2
+          background-color hsl(42, 90, 55)
+
+        &.score_3
+          background-color hsl(86, 63, 55)
+
+        &.score_4
+          background-color hsl(90, 42, 46)
+
 
   span.tries
     background hsl(0,0,67)
