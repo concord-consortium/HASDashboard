@@ -1,5 +1,23 @@
 _ = require 'lodash'
 
+# LARA Dashbaord API can accept timestamp and optimize DB query by filtering out submissions older
+# than provided timestamp. It means that we need to keep them locally and merge each time we receive new data.
+submissionCache = {}
+
+# Converts data format v1 to v2.
+version1to2 = (data) ->
+  {
+    runs: data,
+    timestamp: null
+  }
+
+# Converts data to the last supported version.
+exports.toLatestVersion = (data) ->
+  data.version = 1 unless data.version
+  switch data.version
+    when 1 then version1to2(data)
+    when 2 then data
+
 # We have one run for each activity in a sequence
 # They have the same endpoint_url so we need to
 # find the last page by using updated_at information
@@ -12,12 +30,11 @@ exports.getTocStudents = (runs, studentsPortalInfo) ->
       lastRuns[run.endpoint_url] = run
   return getBasicStudentData(_.values(lastRuns), studentsPortalInfo)
 
-
-
 # Combines runs data provided by LARA and students data provided by Portal.
-exports.getStudentsData = (runs, studentsPortalInfo, page_id) ->
-  page_runs = _.select runs, (r) -> _.includes r.page_ids, page_id
-  students = getBasicStudentData page_runs, studentsPortalInfo
+exports.getStudentsData = (runs, studentsPortalInfo, pageId) ->
+  pageRuns = _.select runs, (r) -> _.includes r.page_ids, pageId
+  mergeCachedSubmissions(runs, submissionCache, pageId)
+  students = getBasicStudentData pageRuns, studentsPortalInfo
   students = filterOutNonCRaterScores students
   students = addGroupsMembers students
   students
@@ -26,6 +43,19 @@ exports.getEndpointUrls = (studentsPortalInfo) ->
 # Some students might have endpoint URL equal to null
 # (it means they haven't started activity yet).
   _.compact(_.map studentsPortalInfo, (s) -> s.endpoint_url)
+
+# Modifies provided list of runs to include all the submissions from the cache.
+# Cache is updated too.
+mergeCachedSubmissions = (runs, submissionCache, pageId) ->
+  _.each runs, (r) ->
+    # Limit submissions to given endpoint (run ID) and page.
+    key = r.endpoint_url + '-' + pageId
+    submissionCache[key] = (submissionCache[key] || []).concat(r.submissions)
+    # Ensure that submissions are unique. In most cases we shouldn't receive duplicate submissions, but it might
+    # happen (e.g. we receive complete data each time - old API, fake data).
+    submissionCache[key] = _.uniq submissionCache[key], 'id'
+    # Finally, update provided structure to include a complete list of submissions.
+    r.submissions = submissionCache[key]
 
 # Note that LARA doesn't return student names or user names.
 getBasicStudentData = (runs, studentsPortalInfo) ->

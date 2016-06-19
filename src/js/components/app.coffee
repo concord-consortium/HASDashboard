@@ -37,6 +37,8 @@ App = React.createClass
     nowShowing: ShowingOverview
     selectedStudent: null
     selectedQuestion: null
+    # LARA returns runs data per page, so we need to save timestamps for every single page (hash).
+    pageDataTimestamps: {}
 
   componentDidMount: ->
     # Look for ?offering= parameter and use it to get the offering information.
@@ -102,25 +104,39 @@ App = React.createClass
       dataType: "jsonp"
       success: setSequence
 
+  getPageDataTimestamp: (pageId) ->
+    @state.pageDataTimestamps[pageId] || null
+
+  # Accepts pageId and new timestamp, returns a new hash that can be used by .setState.
+  updatedPageDataTimestamps: (pageId, newTimestamp) ->
+    timestampsUpdate = {}
+    timestampsUpdate[pageId] = newTimestamp
+    _.assign({}, @state.pageDataTimestamps, timestampsUpdate)
 
   setStudents: ->
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
-    setStudents = (runs) =>
-      students = dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, @state.pageId)
+    pageId = @state.pageId
+    handleRunsData = (data) =>
+      data = dataHelpers.toLatestVersion(data)
+      runs = data.runs
+      timestamp = data.timestamp
+      students = dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, pageId)
       tocStudents = dataHelpers.getTocStudents(runs, @state.studentsPortalInfo)
       @setState
         students: students
         tocStudents: tocStudents
+        pageDataTimestamps: @updatedPageDataTimestamps(pageId, timestamp)
 
     if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
       $.ajax
         url: "#{@state.laraBaseUrl}/runs/dashboard"
         data:
-          page_id: @state.pageId,
+          page_id: pageId,
           endpoint_urls: dataHelpers.getEndpointUrls(@state.studentsPortalInfo)
+          submissions_created_after: @getPageDataTimestamp(pageId)
         dataType: "jsonp"
-        success: setStudents
+        success: handleRunsData
     else
       # Download data only once, as it's totally random, so it might be annoying for developer
       # when everything changes every X seconds.
