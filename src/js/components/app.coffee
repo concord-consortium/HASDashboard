@@ -49,8 +49,11 @@ App = React.createClass
 
     # Refresh report.
     setInterval =>
-      # New students can be added to class or their endpoint_url can be updated once
-      # they start an activity.
+      # Don't call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
+      # https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
+      # If it's not supported, document.hidden will be undefined, but that's fine for our needs.
+      return if document.hidden
+      # New students can be added to class or their endpoint_url can be updated once they start an activity.
       @setOffering(params.offering)
       @setStudents()
     , REPORT_UPDATE_INTERVAL
