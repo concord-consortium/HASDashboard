@@ -1,11 +1,18 @@
 var CopyWebpackPlugin = require('copy-webpack-plugin');
-
+var path = require('path');
 module.exports = {
   entry: "./src/js/main.coffee",
   devtool: "#cheap-module-eval-source-map",
   output: {
     path: "./dist/",
     filename: 'main.js'
+  },
+  // Configuration for webpack-dev-server
+  devServer: {
+    // serve static content from the public directory.
+    contentBase: "./public",
+    // bind to all hostnames
+    host: "0.0.0.0"
   },
   module: {
     loaders: [
@@ -24,9 +31,7 @@ module.exports = {
           { from: 'public/robots.txt' },
           { from: 'public/humans.txt' },
           { from: 'public/browserconfig.xml' },
-          { from: 'public/tile.png' },
-          { from: 'public/tile-wide.png' },
-          { from: 'public/apple-touch-icon.png' },
+          { from: 'public/*.png' },
           { from: 'public/favicon.ico' }
       ])
   ]
