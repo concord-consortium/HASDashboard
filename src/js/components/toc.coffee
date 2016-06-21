@@ -46,7 +46,7 @@ Toc = React.createClass
           _.map activity.pages, (p, indx) =>
             hasQuestion = p.questions.length > 0
             (li  {key: p.id},
-              (StudentsCount {students: pageStudents[p.id] || []})
+              (StudentsCount {students: pageStudents[p.id] || [], small: true})
               (QuestionMarker {hasQuestion: hasQuestion})
               (PageLink
                 id: p.id
