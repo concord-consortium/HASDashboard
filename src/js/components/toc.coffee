@@ -3,6 +3,7 @@ _ = require 'lodash'
 React = require 'react'
 
 {div, h3, ul, li, a} = React.DOM
+StudentsCount = React.createFactory require './students_count.coffee'
 
 Toc = React.createClass
   getInitialState: ->
@@ -27,7 +28,7 @@ Toc = React.createClass
       actSelected = selectedActivity == activity.id
       className = if actSelected then "activity" else "activity hidden"
       name = _.trunc "#{act_indx + 1}: #{activity.name}", {length: 36, ommission: " …" }
-      (div {className: className},
+      (div {className: className, key:activity.id},
         (h3 {
           onTouchTap: (e) => @handleActivityClick(e, activity.id)
           onClick: (e) => @handleActivityClick(e, activity.id),
@@ -65,56 +66,7 @@ Toc = React.createClass
       )
     )
 
-StudentsCount = React.createFactory React.createClass
-  getInitialState: ->
-    showToolTip: false
 
-  toggleToolTip: (e) ->
-    if(@state.showToolTip)
-      @hideToolTip(e)
-    else
-      @showToolTip(e)
-
-  hideToolTip: (e) ->
-    # preventDefault and stopPropagation are needed for touch events.
-    # They ensure that click event isn't triggered and we don't trigger handlers of the parent elements
-    # (e.g. activity title click handler).
-    e.preventDefault()
-    e.stopPropagation()
-    @setState
-      showToolTip: false
-
-  showToolTip: (e) ->
-    e.preventDefault()
-    e.stopPropagation()
-    @setState
-      showToolTip: true
-
-  onNameClick: (e, studentData) ->
-    e.preventDefault()
-    e.stopPropagation()
-    {setPage} = @props
-    setPage(studentData.lastPageId) if setPage
-
-  render: ->
-    {showToolTip} = @state
-    {setPage} = @props
-    (div {className: 'marker'},
-      # Don't display 0.
-      if @props.students.length > 0
-        (div {className: 'students-count', onTouchTap: @toggleToolTip, onMouseEnter: @showToolTip, onMouseLeave: @hideToolTip},
-          (div {className: 'students-count-value'}, @props.students.length)
-          if showToolTip
-            (div {className: 'student-names'}, _.map(@props.students, (st) =>
-              (a {
-                key: st.name,
-                className: if setPage then 'name clickable' else 'name',
-                onClick: (e) => @onNameClick(e, st),
-                onTouchTap: (e) => @onNameClick(e, st)
-              }, st.name))
-            )
-        )
-    )
 
 QuestionMarker = React.createFactory React.createClass
   render: ->
