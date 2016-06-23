@@ -9,6 +9,7 @@ NavOverlay        = React.createFactory require './nav_overlay.coffee'
 ReportOverlay     = React.createFactory require './report_overlay.coffee'
 
 offeringFakeData  = require '../data/fake_offering.coffee'
+sequenceFakeData  = require '../data/fake_sequence.coffee'
 runsFakeData      = require '../data/fake_runs.coffee'
 dataHelpers       = require '../data/helpers.coffee'
 utils             = require '../utils.coffee'
@@ -48,12 +49,16 @@ App = React.createClass
     @setOffering(params.offering)
 
     # Refresh report.
+
     setInterval =>
       # Don't call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
       # https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
       # If it's not supported, document.hidden will be undefined, but that's fine for our needs.
       return if document.hidden
-      # New students can be added to class or their endpoint_url can be updated once they start an activity.
+      # Dont need to reload data if we are just generating it randomly
+      return if @useFakeData()
+      # New students can be added to class or their endpoint_url can be updated once
+      # they start an activity.
       @setOffering(params.offering)
       @setStudents()
     , REPORT_UPDATE_INTERVAL
@@ -96,19 +101,26 @@ App = React.createClass
         sequence: sequence
         pageId: firstPage.id
 
-    resources = "activities"
-    id = @state.activityId
-    if @state.sequenceId
-      resources = "sequences"
-      id = @state.sequenceId
-    url = "#{@state.laraBaseUrl}/#{resources}/#{id}/dashboard_toc"
-    $.ajax
-      url: url
-      dataType: "jsonp"
-      success: setSequence
+    if @useFakeData()
+      utils.fakeAjax =>
+      data = sequenceFakeData(@state.activityId)
+      setSequence(data)
+    else
+      resources = "activities"
+      id = @state.activityId
+      if @state.sequenceId
+        resources = "sequences"
+        id = @state.sequenceId
+      url = "#{@state.laraBaseUrl}/#{resources}/#{id}/dashboard_toc"
+      $.ajax
+        url: url
+        dataType: "jsonp"
+        success: setSequence
 
   getPageDataTimestamp: (pageId) ->
     @state.pageDataTimestamps[pageId] || null
+  useFakeData: ->
+    @state.laraBaseUrl is offeringFakeData.FAKE_ACTIVITY_BASE_URL
 
   # Accepts pageId and new timestamp, returns a new hash that can be used by .setState.
   updatedPageDataTimestamps: (pageId, newTimestamp) ->
@@ -131,7 +143,10 @@ App = React.createClass
         tocStudents: tocStudents
         pageDataTimestamps: @updatedPageDataTimestamps(pageId, timestamp)
 
-    if @state.laraBaseUrl != offeringFakeData.FAKE_ACTIVITY_BASE_URL
+    if @useFakeData()
+      utils.fakeAjax =>
+        handleRunsData(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
+    else
       $.ajax
         url: "#{@state.laraBaseUrl}/runs/dashboard"
         data:
@@ -140,12 +155,6 @@ App = React.createClass
           submissions_created_after: @getPageDataTimestamp(pageId)
         dataType: "jsonp"
         success: handleRunsData
-    else
-      # Download data only once, as it's totally random, so it might be annoying for developer
-      # when everything changes every X seconds.
-      if @state.students.length == 0
-        utils.fakeAjax =>
-          setStudents(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
 
   toggleReport: ->
     showReportNext = not @state.showReport
