@@ -44,6 +44,7 @@ StudentsCount = onClickOutside React.createClass
   onNameClick: (e, studentData) ->
     e.preventDefault()
     e.stopPropagation()
+    @hideToolTip()
     {setPage} = @props
     setPage(studentData.lastPageId) if setPage
 
