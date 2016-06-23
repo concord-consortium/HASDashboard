@@ -103,8 +103,8 @@ App = React.createClass
 
     if @useFakeData()
       utils.fakeAjax =>
-      data = sequenceFakeData(@state.activityId)
-      setSequence(data)
+        data = sequenceFakeData(@state.activityId)
+        setSequence(data)
     else
       resources = "activities"
       id = @state.activityId
