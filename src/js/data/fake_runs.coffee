@@ -46,7 +46,7 @@ getAnswers = (questions) ->
       answer: randomAnswer[_.random(1, 4)]()
       feedback: "feedback text from c-rater here"
       feedback_type: feedbackType
-      score: _.random 6
+      score: _.random maxScore
       max_score: maxScore
     }
     answers.push answer

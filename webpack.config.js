@@ -1,5 +1,5 @@
 var CopyWebpackPlugin = require('copy-webpack-plugin');
-var path = require('path');
+
 module.exports = {
   entry: "./src/js/main.coffee",
   devtool: "#cheap-module-eval-source-map",
@@ -7,11 +7,8 @@ module.exports = {
     path: "./dist/",
     filename: 'main.js'
   },
-  // Configuration for webpack-dev-server
   devServer: {
-    // serve static content from the public directory.
-    contentBase: "./public",
-    // bind to all hostnames
+    // bind to all hostnames for webpack-dev-server
     host: "0.0.0.0"
   },
   module: {
@@ -26,26 +23,12 @@ module.exports = {
   },
   plugins: [
       new CopyWebpackPlugin([
-          // File examples
-          { from: 'public/index.html' },
-          { from: 'public/robots.txt' },
-          { from: 'public/humans.txt' },
-          { from: 'public/browserconfig.xml' },
-          { from: 'public/*.png' },
-          { from: 'public/favicon.ico' }
+        {
+          from: 'public',
+          // We only copy modified files during a webpack-dev-server build.
+          // Setting this to `true` copies all files.
+          copyUnmodified: true
+        }
       ])
   ]
 };
-
-/*
-
-plugins: [
-  new webpack.ProvidePlugin({
-    "_": "underscore"
-  }),
-  new webpack.ProvidePlugin({
-    "$": "jquery"
-  })
-]
-
-*/
