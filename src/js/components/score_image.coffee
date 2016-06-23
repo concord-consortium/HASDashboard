@@ -8,8 +8,9 @@ ScoreImage = React.createClass
 
   getSrc: ->
     # Display something for -1 too (test score).
-    score = if @props.score > 0 then @props.score else 1
-    "http://authoring.concord.org/assets/c-rater/#{score}-5pt-scale.png"
+    score = if @props.score then @props.score else 0
+    max_score = if @props.max_score then @props.max_score else 6
+    "./images/c-rater/#{score}-#{max_score}pt-scale.png"
 
   render: ->
     (img

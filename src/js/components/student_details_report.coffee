@@ -44,7 +44,7 @@ StudentDetailsReport = React.createClass
                 if ans.score?
                   (p {},
                     (strong {}, "Score:")
-                    (ScoreImage {score: ans.score, width: "100%"})
+                    (ScoreImage {score: ans.score, max_score: ans.max_score, width: "100%"})
                   )
               )
             )

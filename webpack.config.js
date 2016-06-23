@@ -7,6 +7,10 @@ module.exports = {
     path: "./dist/",
     filename: 'main.js'
   },
+  devServer: {
+    // bind to all hostnames for webpack-dev-server
+    host: "0.0.0.0"
+  },
   module: {
     loaders: [
       { test: /\.html$/, loader: 'file-loader' },
@@ -19,28 +23,12 @@ module.exports = {
   },
   plugins: [
       new CopyWebpackPlugin([
-          // File examples
-          { from: 'public/index.html' },
-          { from: 'public/robots.txt' },
-          { from: 'public/humans.txt' },
-          { from: 'public/browserconfig.xml' },
-          { from: 'public/tile.png' },
-          { from: 'public/tile-wide.png' },
-          { from: 'public/apple-touch-icon.png' },
-          { from: 'public/favicon.ico' }
+        {
+          from: 'public',
+          // We only copy modified files during a webpack-dev-server build.
+          // Setting this to `true` copies all files.
+          copyUnmodified: true
+        }
       ])
   ]
 };
-
-/*
-
-plugins: [
-  new webpack.ProvidePlugin({
-    "_": "underscore"
-  }),
-  new webpack.ProvidePlugin({
-    "$": "jquery"
-  })
-]
-
-*/
