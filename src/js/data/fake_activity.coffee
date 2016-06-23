@@ -1,4 +1,5 @@
 _ = require 'lodash'
+randomText = require './random_text.coffee'
 
 pageCounter     = 1
 activityCounter = 1
@@ -31,14 +32,18 @@ addQuestions = ->
 
 addPage = (activityId) ->
   pageId = pageCounter++
-  "name": "Page #{pageId}",
+  name = "Page #{pageId}"
+  name = if _.random(0,4) == 0 then randomText(name, 10) else name
+  "name": name,
   "id": pageId,
   "url": "/activities/#{activityId}/pages/#{pageId}",
   "questions": if Math.random() > 0.6 then addQuestions() else []
 
 module.exports = () ->
   activityId = activityCounter++
-  "name": "Fake activity #{activityId}",
+  name = "Fake activity #{activityId}"
+  name = if _.random(0,4) == 0 then randomText("activity ", 10) else name
+  "name": name,
   "url": "/activities/#{activityId}",
   "id": activityId,
   "pages": randDo(8, -> addPage(activityId))

@@ -53,7 +53,7 @@ Toc = React.createClass
                 url: p.url
                 current: p.id == currentPageId
                 hasQuestions: p.questions.length > 0
-                name: "#{indx + 1}. #{p.name}"
+                name: p.name
                 index: indx + 1
                 setPage: @setPage
               )
@@ -84,7 +84,10 @@ PageLink = React.createFactory React.createClass
   render: ->
     className = "page-link"
     className += " current" if @props.current
-    (a {href: @props.url, onClick: @onClick, onTouchTap: @onClick, className: className}, @props.name or "Page #{@props.index}")
+    (a {href: @props.url, onClick: @onClick, onTouchTap: @onClick, className: className},
+      (div {className: 'number'},"#{@props.index}.")
+      (div {className: 'name'}, @props.name or "Page #{@props.index}")
+    )
 
 getPageStudents = (students) ->
   _.reduce students, (result, s) ->

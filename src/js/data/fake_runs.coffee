@@ -1,21 +1,8 @@
 _ = require 'lodash'
 
-words = _.words """
-flesh cobweb groan blush acceptable friendly jar spotless colorful vessel ask
-harm ripe rain concentrate educated perform hellish irate escape unlock float
-swing level ultra camera increase mark secret ladybug retire motion smile room
-craven lumpy rain uneven group hurt rigid tongue alcoholic plot sneeze black creepy point wise
-clean knee attend chess vagabond deeply flock eatable bitter pump popcorn attraction careless
-jealous prefer juggle right slope cause damp stupid desire babies wash rat crook
-bake baby available coordinated superb refuse connect cellar flowery first handsomely
-shallow giraffe ordinary peep deadpan welcome fang store explain
-"""
+randomText = require './random_text.coffee'
 
-randomText = (prefix="", max=300, min=4)->
-  length = _.random(min,max)
-  "#{prefix} #{_.sample(words, length).join '' }"
-
-answers = _.times(4, (i) -> randomText("choice #{i}:", 100))
+answers = _.times(4, (i) -> randomText("choice #{i} – ", 10))
 
 randomAnswer =
   1: -> _.sample(answers)
@@ -37,20 +24,21 @@ getSubmissions = (questions) ->
     answers: getAnswers(questions)
 
 getAnswers = (questions) ->
-  answers = []
+  results = []
   for question, idx in questions
     feedbackType = if idx % 2 == 0 then "Embeddable::FeedbackItem" else "CRater::FeedbackItem"
     maxScore = if idx is 1 then 6 else if idx is 3 then 4 else 0
+    answerText =  randomAnswer[idx+1]()
     answer = {
       question_index: question.index
-      answer: randomAnswer[_.random(1, 4)]()
+      answer: answerText
       feedback: "feedback text from c-rater here"
       feedback_type: feedbackType
       score: _.random maxScore
       max_score: maxScore
     }
-    answers.push answer
-  answers
+    results.push answer
+  results
 
 module.exports = (students, questions, sequence) ->
 
