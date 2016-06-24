@@ -32,6 +32,7 @@
       flex-wrap nowrap
       justify-content flex-start
       align-items center
+      margin-top 0.1em
       a
         color #459ace
         display block
@@ -39,18 +40,23 @@
         &:hover
           color hsl(187,45,20)
   .marker
-    width 2em
+    width 1.5em
     height 2em
     margin-right .1em
     display flex
     align-items center
-    justify-items center
     align-content center
     justify-content center
     text-align center
 
   .page-link
-    width: 270px;
+    width 270px
+    display flex
+    .number
+      display block
+    .name
+      display block
+      margin-left 0.5em
     &.current
       color hsl(187,45,20)
       font-weight bold
