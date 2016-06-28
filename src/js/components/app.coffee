@@ -13,6 +13,7 @@ sequenceFakeData  = require '../data/fake_sequence.coffee'
 runsFakeData      = require '../data/fake_runs.coffee'
 dataHelpers       = require '../data/helpers.coffee'
 utils             = require '../utils.coffee'
+UrlHelper         = require '../data/urls.coffee'
 
 ShowingOverview        = "ShowingOverview"
 ShowingStudentDetails  = "ShowingStudentDetails"
@@ -47,6 +48,7 @@ App = React.createClass
     # Note that you can replace data/offering.coffee content to point to real LARA instance.
     params = utils.urlParams()
     @setOffering(params.offering)
+    @urlHelper = new UrlHelper()
 
     # Refresh report.
 
@@ -111,7 +113,7 @@ App = React.createClass
       if @state.sequenceId
         resources = "sequences"
         id = @state.sequenceId
-      url = "#{@state.laraBaseUrl}/#{resources}/#{id}/dashboard_toc"
+      url = @urlHelper.tocUrl(@state.laraBaseUrl, resources, id)
       $.ajax
         url: url
         dataType: "jsonp"
@@ -148,7 +150,7 @@ App = React.createClass
         handleRunsData(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
     else
       $.ajax
-        url: "#{@state.laraBaseUrl}/runs/dashboard"
+        url: @urlHelper.dashRunsUrl(@state.laraBaseUrl)
         data:
           page_id: pageId,
           endpoint_urls: dataHelpers.getEndpointUrls(@state.studentsPortalInfo)
