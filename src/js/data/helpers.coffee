@@ -32,7 +32,7 @@ exports.getTocStudents = (runs, studentsPortalInfo) ->
 
 # Combines runs data provided by LARA and students data provided by Portal.
 exports.getStudentsData = (runs, studentsPortalInfo, pageId) ->
-  pageRuns = _.select runs, (r) -> _.includes r.page_ids, pageId
+  pageRuns = _.filter runs, (r) -> _.includes r.page_ids, pageId
   mergeCachedSubmissions(runs, submissionCache, pageId)
   students = getBasicStudentData pageRuns, studentsPortalInfo
   students = filterOutNonCRaterScores students
