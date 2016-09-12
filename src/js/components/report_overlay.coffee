@@ -16,11 +16,11 @@ ReportOverlay = React.createClass
   # Those who have no submissions are at the bottom of the list.
   sorted_students: ->
     _.sortBy(@props.data.students, (value) ->
-      if not value.submissions
-        0
-      else
-        v = _.max(value.submissions, 'created_at')
+      if value.submissions && value.submissions.length > 0
+        v = _.maxBy(value.submissions, 'created_at')
         v.created_at
+      else
+        0
     ).reverse()
 
   render: ->
