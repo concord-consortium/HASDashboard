@@ -12,6 +12,23 @@ Nav = React.createClass
   getInitialState: ->
     activity: null
 
+  componentDidUpdate: (prevProps) ->
+    if (prevProps.pageId != @props.pageId) || (prevProps.sequence != @props.sequence)
+      @openActivity()
+
+  openActivity: (pageId) ->
+    if @props.pageId
+      if @props.sequence
+        activities = @props.sequence.activities || []
+        found = _.find(activities, (a) =>
+          _.find(a.pages, (p) => p.id == @props.pageId)
+        )
+        if found
+          @setState
+            activity: found.id
+
+
+
   render: ->
     (div {className:"nav_overlay"},
       (div {className: @className("tab"), onClick: @props.toggle}, "TOC")
@@ -20,6 +37,7 @@ Nav = React.createClass
           sequence: @props.sequence
           students: @props.students
           setPage: @props.setPage
+          pageId: @props.pageId
           selectedActivity: @state.activity
           selectActivity: (act_id) =>
             if act_id is @state.activity

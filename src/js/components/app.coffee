@@ -30,7 +30,6 @@ App = React.createClass
     laraBaseUrl: null
     activityId: null
     sequenceId: null
-    pageId: null
     studentsPortalInfo: []
     students: []
     sequence: null
@@ -66,8 +65,8 @@ App = React.createClass
     , REPORT_UPDATE_INTERVAL
 
   componentDidUpdate: (prevProps, prevState) ->
-    if !_.isEqual(@state.studentsPortalInfo, prevState.studentsPortalInfo) || @state.pageId != prevState.pageId
-      # students data depends on students' endpoint URLs and pageId, so when they change, we need to refresh it.
+  # students data depends on students' endpoint URLs and pageId, so when they change, we need to refresh it.
+    if !_.isEqual(@state.studentsPortalInfo, prevState.studentsPortalInfo) || @props.params.pageId != prevProps.params.pageId
       @setStudents()
     if (@state.activityId != prevState.activityId) or (@state.sequenceId != prevState.sequenceId)
       @setSequence()
@@ -133,7 +132,7 @@ App = React.createClass
   setStudents: ->
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
-    pageId = @state.pageId
+    pageId = @pageId()
     handleRunsData = (data) =>
       data = dataHelpers.toLatestVersion(data)
       runs = data.runs
@@ -187,20 +186,26 @@ App = React.createClass
       nowShowing: ShowingOverview
 
   setPage: (pageId) ->
-    @setState
-      pageId: pageId
-      nowShowing: ShowingOverview
-      selectedQuestion: null
-      selectedStudent: null
+    if pageId != @pageId()
+      @setState
+        nowShowing: ShowingOverview
+        selectedQuestion: null
+        selectedStudent: null
+
+  pageId: ->
+    parseInt(@props.params.pageId)
 
   getCurrentPage: ->
     pages = @state.sequence?.activities.map (a) -> a.pages
     pages = _.flatten pages
-    _.find pages, (p) => p.id == @state.pageId
+    _.find pages, (p) => p.id == @pageId()
 
   getQuestions: ->
     return [] unless @state.sequence
-    @getCurrentPage().questions || []
+    @getCurrentPage()?.questions || []
+
+  data: ->
+    Object.assign({}, @state, {pageId: @pageId()})
 
   render: ->
     page = @getCurrentPage()
@@ -231,6 +236,7 @@ App = React.createClass
         sequence: @state.sequence
         students: @state.tocStudents
         setPage: @setPage
+        pageId: @pageId()
       )
     )
 
