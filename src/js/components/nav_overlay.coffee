@@ -16,7 +16,7 @@ Nav = React.createClass
     if (prevProps.pageId != @props.pageId) || (prevProps.sequence != @props.sequence)
       @openActivity()
 
-  openActivity: (pageId) ->
+  openActivity: () ->
     if @props.pageId
       if @props.sequence
         activities = @props.sequence.activities || []

@@ -205,7 +205,7 @@ App = React.createClass
     @getCurrentPage()?.questions || []
 
   data: ->
-    Object.assign({}, @state, {pageId: @pageId()})
+    _.assign({}, @state, {pageId: @pageId()})
 
   render: ->
     page = @getCurrentPage()

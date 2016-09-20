@@ -78,9 +78,6 @@ QuestionMarker = React.createFactory React.createClass
 
 
 PageLink = React.createFactory React.createClass
-  onClick: (e) ->
-    e.preventDefault()
-    @props.setPage @props.id
 
   render: ->
     className = "page-link"
