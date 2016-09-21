@@ -11,12 +11,12 @@ names = _.words """
     """
 
 randomName = ->
-  _.sample(names, 2).join ' '
+  _.sampleSize(names, 2).join ' '
 
 studentData = (name) ->
   name: name
   username: name.replace(' ', '').toLowerCase() + _.random(1, 1000)
-  endpoint_url: _.sample(chars, 15).join('')
+  endpoint_url: _.sampleSize(chars, 15).join('')
 
 students = ->
   result = _.times 10, -> studentData randomName()

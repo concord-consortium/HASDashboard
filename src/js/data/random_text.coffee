@@ -13,4 +13,4 @@ these dogs had some sort of social support structure that allowed them to surviv
 
 module.exports = (prefix="", max=300, min=4) ->
   length = _.random(min,max)
-  "#{prefix} #{_.sample(words, length).join ' ' }"
+  "#{prefix} #{_.sampleSize(words, length).join ' ' }"

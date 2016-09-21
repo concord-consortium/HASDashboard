@@ -9,8 +9,7 @@ onClickOutside = require('react-onclickoutside')
 
 # onClickOutside ( https://github.com/Pomax/react-onclickoutside )
 # handles closing our student list when something else is clicked..
-StudentsCount = onClickOutside React.createClass
-
+StudentsCount = onClickOutside(React.createClass(
 # onClickOutside without autoBind:false creates many warnings,
 # see: https://github.com/Pomax/react-onclickoutside/issues/89
   autobind: false
@@ -18,7 +17,8 @@ StudentsCount = onClickOutside React.createClass
   getInitialState: ->
     showToolTip: false
 
-  handleClickOutside: (e) ->
+
+  myClickOutsideHandler: (e) ->
     if(@state.showToolTip)
       @hideToolTip(e)
 
@@ -68,5 +68,9 @@ StudentsCount = onClickOutside React.createClass
             )
         )
     )
+  ),
+  handleClickOutside: (instance) ->
+    instance.myClickOutsideHandler.bind(instance)
+)
 
 module.exports=StudentsCount

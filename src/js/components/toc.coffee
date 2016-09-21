@@ -1,6 +1,8 @@
 require '../../css/toc.styl'
 _ = require 'lodash'
 React = require 'react'
+ReactRouter = require 'react-router'
+Link = React.createFactory(ReactRouter.Link)
 
 {div, h3, ul, li, a} = React.DOM
 StudentsCount = React.createFactory require './students_count.coffee'
@@ -11,7 +13,6 @@ Toc = React.createClass
 
   setPage: (id) ->
     @props.setPage id
-    @setState currentPageId: id
 
   handleActivityClick: (e, id) ->
     e.preventDefault()
@@ -19,7 +20,7 @@ Toc = React.createClass
 
 
   render: ->
-    {currentPageId} = @state
+    currentPageId = @props.pageId
     {sequence, students, selectedActivity, selectActivity} = @props
     return (div {}) unless sequence?
     pageStudents = getPageStudents students
@@ -27,7 +28,7 @@ Toc = React.createClass
     acts = _.map sequence.activities, (activity, act_indx) =>
       actSelected = selectedActivity == activity.id
       className = if actSelected then "activity" else "activity hidden"
-      name = _.trunc "#{act_indx + 1}: #{activity.name}", {length: 36, ommission: " …" }
+      name = _.truncate "#{act_indx + 1}: #{activity.name}", {length: 36, ommission: " …" }
       (div {className: className, key:activity.id},
         (h3 {
           onTouchTap: (e) => @handleActivityClick(e, activity.id)
@@ -77,14 +78,11 @@ QuestionMarker = React.createFactory React.createClass
 
 
 PageLink = React.createFactory React.createClass
-  onClick: (e) ->
-    e.preventDefault()
-    @props.setPage @props.id
 
   render: ->
     className = "page-link"
     className += " current" if @props.current
-    (a {href: @props.url, onClick: @onClick, onTouchTap: @onClick, className: className},
+    Link({to:"pages/#{@props.id}", className: className},
       (div {className: 'number'},"#{@props.index}.")
       (div {className: 'name'}, @props.name or "Page #{@props.index}")
     )
