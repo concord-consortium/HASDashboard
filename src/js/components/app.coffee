@@ -7,6 +7,7 @@ require '../../css/activity_background.styl'
 ActivityBackround = React.createFactory require './activity_background.coffee'
 NavOverlay        = React.createFactory require './nav_overlay.coffee'
 ReportOverlay     = React.createFactory require './report_overlay.coffee'
+Error             = React.createFactory require './error_alert.coffee'
 
 offeringFakeData  = require '../data/fake_offering.coffee'
 sequenceFakeData  = require '../data/fake_sequence.coffee'
@@ -22,8 +23,10 @@ ShowingQuestionDetails = "ShowingQuestionDetails"
 ACTIVITY_ID_REGEXP = /activities\/(\d+)/
 SEQUENCE_ID_REGEXP = /sequences\/(\d+)/
 REPORT_UPDATE_INTERVAL = 15000 # ms
+TIMEOUT_MS = 10000
 
 {div} = React.DOM
+
 
 App = React.createClass
   getInitialState: ->
@@ -71,8 +74,20 @@ App = React.createClass
     if (@state.activityId != prevState.activityId) or (@state.sequenceId != prevState.sequenceId)
       @setSequence()
 
+  apiCall: (opts) ->
+    authToken = utils.urlParams().token
+    defaults =
+      dataType: "json"
+      timeout: TIMEOUT_MS
+      headers:
+        'Authorization': "Bearer #{authToken}"
+      error: () => @reportError(opts.url, opts.errorContext,  arguments)
+    $.ajax _.assign(defaults, opts)
+
+
   setOffering: (offeringUrl) ->
-    setOffering = (data) =>
+    params = utils.urlParams()
+    _setOffering = (data) =>
       activityId = null
       sequenceId = null
       if data.activity_url.match(ACTIVITY_ID_REGEXP)
@@ -87,10 +102,11 @@ App = React.createClass
         sequenceId: sequenceId
 
     if offeringUrl
-      $.ajax
+      @apiCall
         url: offeringUrl
-        dataType: "jsonp"
-        success: setOffering
+        success: _setOffering
+        errorContext: "loading offering"
+
     else
       utils.fakeAjax ->
         setOffering(offeringFakeData)
@@ -112,11 +128,24 @@ App = React.createClass
       if @state.sequenceId
         resources = "sequences"
         id = @state.sequenceId
-      url = @urlHelper.tocUrl(@state.laraBaseUrl, resources, id)
-      $.ajax
-        url: url
-        dataType: "jsonp"
+      tocUrl = @urlHelper.tocUrl(@state.laraBaseUrl, resources, id)
+      @apiCall
+        url: tocUrl
         success: setSequence
+        dataType: "jsonp"
+        errorContext: 'loading table of contents'
+
+  reportError: (url, errorContext, errors) ->
+    error =
+      url: url
+      errorContext: errorContext
+      status: errors?[0]?.status
+      errorString:  errors?[1]
+
+    console?.log?(error)
+    @setState
+      error: error
+
 
   getPageDataTimestamp: (pageId) ->
     @state.pageDataTimestamps[pageId] || null
@@ -148,8 +177,9 @@ App = React.createClass
       utils.fakeAjax =>
         handleRunsData(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
     else
-      $.ajax
-        url: @urlHelper.dashRunsUrl(@state.laraBaseUrl)
+      dashRunsUrl = @urlHelper.dashRunsUrl(@state.laraBaseUrl)
+      @apiCall
+        url: dashRunsUrl
         data:
           page_id: pageId,
           endpoint_urls: dataHelpers.getEndpointUrls(@state.studentsPortalInfo)
@@ -238,6 +268,7 @@ App = React.createClass
         setPage: @setPage
         pageId: @pageId()
       )
+      (Error {error: @state.error}) if @state.error
     )
 
 
