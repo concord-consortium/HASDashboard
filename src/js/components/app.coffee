@@ -86,7 +86,7 @@ App = React.createClass
 
 
   setOffering: (offeringUrl) ->
-    params = utils.urlParams()
+
     _setOffering = (data) =>
       activityId = null
       sequenceId = null
@@ -109,7 +109,7 @@ App = React.createClass
 
     else
       utils.fakeAjax ->
-        setOffering(offeringFakeData)
+        _setOffering(offeringFakeData)
 
   setSequence: ->
     setSequence = (sequence) =>
@@ -175,7 +175,8 @@ App = React.createClass
 
     if @useFakeData()
       utils.fakeAjax =>
-        handleRunsData(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
+        if @state.sequence
+          handleRunsData(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
     else
       dashRunsUrl = @urlHelper.dashRunsUrl(@state.laraBaseUrl)
       @apiCall
