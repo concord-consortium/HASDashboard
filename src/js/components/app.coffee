@@ -15,6 +15,7 @@ runsFakeData      = require '../data/fake_runs.coffee'
 dataHelpers       = require '../data/helpers.coffee'
 utils             = require '../utils.coffee'
 UrlHelper         = require '../data/urls.coffee'
+LogManagerHelper  = require '../log_manager_helper.coffee'
 
 ShowingOverview        = "ShowingOverview"
 ShowingStudentDetails  = "ShowingStudentDetails"
@@ -51,7 +52,7 @@ App = React.createClass
     params = utils.urlParams()
     @setOffering(params.offering)
     @urlHelper = new UrlHelper()
-
+    @logManager = new LogManagerHelper({offering: params.offering, username: params.username, session: params.token})
     # Refresh report.
 
     setInterval =>
@@ -95,6 +96,12 @@ App = React.createClass
       if data.activity_url.match(SEQUENCE_ID_REGEXP)
         sequenceId= data.activity_url.match(SEQUENCE_ID_REGEXP)[1]
 
+      @logManager.log
+        event: "setOffering"
+        activity: data.activity_url
+        parameters:
+          activityId: activityId
+          sequenceId: sequenceId
       @setState
         studentsPortalInfo: data.students
         laraBaseUrl: utils.baseUrl(data.activity_url)
@@ -143,6 +150,10 @@ App = React.createClass
       errorString:  errors?[1]
 
     console?.log?(error)
+    @logManager.log
+      event: "error"
+      parameters:
+        error: error.errorString
     @setState
       error: error
 
@@ -203,11 +214,21 @@ App = React.createClass
       showNav: showNavNext
 
   onShowStudentDetails: (evt,student)->
+    @logManager.log
+      event: "showStudentDetails"
+      parameters:
+        name: student.name
+        id: student.id
     @setState
       selectedStudent: student
       nowShowing: ShowingStudentDetails
 
   onShowQuestionDetails: (evt,question)->
+    @logManager.log
+      event: "showQuestionDetails"
+      parameters:
+        questionIndex: question.index
+        questionPrompt: question.prompt
     @setState
       selectedQuestion: question
       nowShowing: ShowingQuestionDetails
@@ -216,12 +237,18 @@ App = React.createClass
     @setState
       nowShowing: ShowingOverview
 
-  setPage: (pageId) ->
-    if pageId != @pageId()
-      @setState
-        nowShowing: ShowingOverview
-        selectedQuestion: null
-        selectedStudent: null
+  setPage: (page) ->
+    props = page.props
+    @logManager.log
+      event: "setPage"
+      parameters:
+        name: props.name
+        id: props.id
+        hasQuestion: props.hasQuestion
+    @setState
+      nowShowing: ShowingOverview
+      selectedQuestion: null
+      selectedStudent: null
 
   pageId: ->
     parseInt(@props.params.pageId)

@@ -11,8 +11,8 @@ Toc = React.createClass
   getInitialState: ->
     currentPageId: null
 
-  setPage: (id) ->
-    @props.setPage id
+  setPage: (page) ->
+    @props.setPage page
 
   handleActivityClick: (e, id) ->
     e.preventDefault()
@@ -36,8 +36,8 @@ Toc = React.createClass
         },
           (StudentsCount
             students: activityStudents[activity.id],
-            setPage: (id) =>
-              @setPage(id)
+            setPage: (page) =>
+              @setPage(page)
               # Show activity pages if it's not already visible.
               selectActivity(activity.id) unless actSelected
           )
@@ -53,7 +53,7 @@ Toc = React.createClass
                 id: p.id
                 url: p.url
                 current: p.id == currentPageId
-                hasQuestions: p.questions.length > 0
+                hasQuestion: hasQuestion
                 name: p.name
                 index: indx + 1
                 setPage: @setPage
@@ -82,7 +82,7 @@ PageLink = React.createFactory React.createClass
   render: ->
     className = "page-link"
     className += " current" if @props.current
-    Link({to:"pages/#{@props.id}", className: className},
+    Link({to:"pages/#{@props.id}", className: className, onClick: => @props.setPage(@) },
       (div {className: 'number'},"#{@props.index}.")
       (div {className: 'name'}, @props.name or "Page #{@props.index}")
     )
