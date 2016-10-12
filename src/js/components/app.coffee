@@ -54,6 +54,11 @@ App = React.createClass
     @urlHelper = new UrlHelper()
     @logManager = new LogManagerHelper({offering: params.offering, username: params.username, session: params.token})
     # Refresh report.
+    @logManager.log
+      event: "openReport"
+      activity: params.offering
+      parameters:
+        offering: params.offering
 
     setInterval =>
       # Don't call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
@@ -96,12 +101,6 @@ App = React.createClass
       if data.activity_url.match(SEQUENCE_ID_REGEXP)
         sequenceId= data.activity_url.match(SEQUENCE_ID_REGEXP)[1]
 
-      @logManager.log
-        event: "setOffering"
-        activity: data.activity_url
-        parameters:
-          activityId: activityId
-          sequenceId: sequenceId
       @setState
         studentsPortalInfo: data.students
         laraBaseUrl: utils.baseUrl(data.activity_url)

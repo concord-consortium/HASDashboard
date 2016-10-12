@@ -9,12 +9,12 @@ class LogManagerHelper
       application: LogManagerHelper.applicationName
 
   log: (data) ->
-  if (typeof data == 'string')
+    if (typeof data == 'string')
       data =
         event: data
     timestamp =
       time: Date.now();
-    @data = _.assign(@data,data,timestamp) # update our defaults
+    @data = _.assign({},@data,data,timestamp) # update our defaults
     try
       request = new XMLHttpRequest()
       request.open('POST', LogManagerHelper.logManagerUrl, true);
