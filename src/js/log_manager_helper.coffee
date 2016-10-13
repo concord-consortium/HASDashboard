@@ -2,7 +2,7 @@ _ = require "lodash"
 
 class LogManagerHelper
   @logManagerUrl   = "//cc-log-manager.herokuapp.com/api/logs"
-  @applicationName = "HASBot-Dashoard"
+  @applicationName = "HASBot-Dashboard"
 
   constructor: (initial_data={}) ->
     @defaultData = _.assign initial_data,
