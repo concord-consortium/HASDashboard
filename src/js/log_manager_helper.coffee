@@ -5,7 +5,7 @@ class LogManagerHelper
   @applicationName = "HASBot-Dashoard"
 
   constructor: (initial_data={}) ->
-    @data = _.assign initial_data,
+    @defaultData = _.assign initial_data,
       application: LogManagerHelper.applicationName
 
   log: (data) ->
@@ -14,12 +14,12 @@ class LogManagerHelper
         event: data
     timestamp =
       time: Date.now();
-    @data = _.assign({},@data,data,timestamp) # update our defaults
+    data = _.assign({}, @defaultData, data, timestamp)
     try
       request = new XMLHttpRequest()
       request.open('POST', LogManagerHelper.logManagerUrl, true);
       request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-      request.send(JSON.stringify(@data));
+      request.send(JSON.stringify(data));
 
     catch
       if console
