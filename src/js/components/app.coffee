@@ -52,7 +52,7 @@ App = React.createClass
     params = utils.urlParams()
     @setOffering(params.offering)
     @urlHelper = new UrlHelper()
-    @logManager = new LogManagerHelper({offering: params.offering, username: params.username, session: params.token})
+    @logManager = new LogManagerHelper({activity: params.offering, username: params.username, session: params.token})
     # Refresh report.
     @logManager.log
       event: "openReport"
@@ -60,7 +60,7 @@ App = React.createClass
       parameters:
         offering: params.offering
 
-    setInterval =>
+    @reloadInterval = setInterval =>
       # Don't call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
       # https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
       # If it's not supported, document.hidden will be undefined, but that's fine for our needs.
@@ -72,6 +72,9 @@ App = React.createClass
       @setOffering(params.offering)
       @setStudents()
     , REPORT_UPDATE_INTERVAL
+
+  stopRefreshing: ->
+    clearInterval(@reloadInterval)
 
   componentDidUpdate: (prevProps, prevState) ->
   # students data depends on students' endpoint URLs and pageId, so when they change, we need to refresh it.
@@ -149,10 +152,14 @@ App = React.createClass
       errorString:  errors?[1]
 
     console?.log?(error)
+    if error.status == 401 || error.status == 403
+      @stopRefreshing()
+
     @logManager.log
       event: "error"
       parameters:
         error: error.errorString
+
     @setState
       error: error
 
