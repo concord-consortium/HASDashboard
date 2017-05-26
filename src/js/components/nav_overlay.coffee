@@ -30,7 +30,7 @@ Nav = React.createClass
 
 
   render: ->
-    (div {className:"nav_overlay"},
+    (div {className:"nav_overlay shadow"},
       (div {className: @className("tab"), onClick: @props.toggle}, "TOC")
       (div {className: @className("content")},
         (Toc {

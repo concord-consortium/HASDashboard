@@ -12,18 +12,12 @@ vertical()
   -webkit-transform-origin: top right;
   -moz-transform-origin: top right;
   -o-transform-origin: top right;
-  transform-origin: top right;
+  transform-origin: content '';
 
 animatedSlide(delay=200ms)
   transition-duration delay
   transition-timing-function ease-in
 
-right-openable(x, delta)
-  animatedSlide()
-  position fixed
-  right x
-  &.open
-    right (x + delta)
 
 top-openable(y, delta)
   animatedSlide()
@@ -32,13 +26,15 @@ top-openable(y, delta)
   &.open
     top (y + delta)
 
-overlay(x=1px, y=-2px, spread=2px)
+overlay(z=10)
   box-sizing border-box
   background-color hsl(210,76,36)
   position fixed
   opacity 0.99
-  z-index 10
+  z-index z
   padding 0.5em
+
+shadow(x=1px, y=-2px, spread=2px)
   box-shadow x y spread hsla(0,0,0,0.5)
 
 bubbleBox(color=white, spacing=0, radius=0)

@@ -1,25 +1,25 @@
-React = require 'react'
-$ = require 'jquery'
-_ = require 'lodash'
+React = require "react"
+$ = require "jquery"
+_ = require "lodash"
 
-require '../../css/activity_background.styl'
+require "../../css/activity_background.styl"
 
-ActivityBackround = React.createFactory require './activity_background.coffee'
-NavOverlay        = React.createFactory require './nav_overlay.coffee'
-ReportOverlay     = React.createFactory require './report_overlay.coffee'
-Error             = React.createFactory require './error_alert.coffee'
+ActivityBackround = React.createFactory require "./activity_background.coffee"
+RightOverlay      = React.createFactory require "./right_overlay.coffee"
+NavOverlay        = React.createFactory require "./nav_overlay.coffee"
+Error             = React.createFactory require "./error_alert.coffee"
+Debugger          = React.createFactory require "./debugger.coffee"
 
-offeringFakeData  = require '../data/fake_offering.coffee'
-sequenceFakeData  = require '../data/fake_sequence.coffee'
-runsFakeData      = require '../data/fake_runs.coffee'
-dataHelpers       = require '../data/helpers.coffee'
-utils             = require '../utils.coffee'
-UrlHelper         = require '../data/urls.coffee'
-LogManagerHelper  = require '../log_manager_helper.coffee'
+offeringFakeData  = require "../data/fake_offering.coffee"
+sequenceFakeData  = require "../data/fake_sequence.coffee"
+runsFakeData      = require "../data/fake_runs.coffee"
+dataHelpers       = require "../data/helpers.coffee"
+utils             = require "../utils.coffee"
+UrlHelper         = require "../data/urls.coffee"
+LogManagerHelper  = require "../log_manager_helper.coffee"
+NowShowing        = require "../now_showing.coffee"
 
-ShowingOverview        = "ShowingOverview"
-ShowingStudentDetails  = "ShowingStudentDetails"
-ShowingQuestionDetails = "ShowingQuestionDetails"
+{ ShowingModule, ShowingOverview, ShowingStudentDetails, ShowingQuestionDetails } = NowShowing
 
 ACTIVITY_ID_REGEXP = /activities\/(\d+)/
 SEQUENCE_ID_REGEXP = /sequences\/(\d+)/
@@ -61,9 +61,9 @@ App = React.createClass
         offering: params.offering
 
     @reloadInterval = setInterval =>
-      # Don't call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
+      # Don"t call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
       # https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
-      # If it's not supported, document.hidden will be undefined, but that's fine for our needs.
+      # If it"s not supported, document.hidden will be undefined, but that"s fine for our needs.
       return if document.hidden
       # Dont need to reload data if we are just generating it randomly
       return if @useFakeData()
@@ -77,7 +77,7 @@ App = React.createClass
     clearInterval(@reloadInterval)
 
   componentDidUpdate: (prevProps, prevState) ->
-  # students data depends on students' endpoint URLs and pageId, so when they change, we need to refresh it.
+  # students data depends on students" endpoint URLs and pageId, so when they change, we need to refresh it.
     if !_.isEqual(@state.studentsPortalInfo, prevState.studentsPortalInfo) || @props.params.pageId != prevProps.params.pageId
       @setStudents()
     if (@state.activityId != prevState.activityId) or (@state.sequenceId != prevState.sequenceId)
@@ -89,7 +89,7 @@ App = React.createClass
       dataType: "json"
       timeout: TIMEOUT_MS
       headers:
-        'Authorization': "Bearer #{authToken}"
+        "Authorization": "Bearer #{authToken}"
       error: () => @reportError(opts.url, opts.errorContext,  arguments)
     $.ajax _.assign(defaults, opts)
 
@@ -142,7 +142,7 @@ App = React.createClass
         url: tocUrl
         success: setSequence
         dataType: "jsonp"
-        errorContext: 'loading table of contents'
+        errorContext: "loading table of contents"
 
   reportError: (url, errorContext, errors) ->
     error =
@@ -184,15 +184,19 @@ App = React.createClass
       runs = data.runs
       timestamp = data.timestamp
       students = dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, pageId)
+      allStudentData = dataHelpers.getAllStudentsData(runs, @state.studentsPortalInfo)
       tocStudents = dataHelpers.getTocStudents(runs, @state.studentsPortalInfo)
       @setState
         students: students
+        allStudentData: allStudentData
         tocStudents: tocStudents
         pageDataTimestamps: @updatedPageDataTimestamps(pageId, timestamp)
 
     if @useFakeData()
       utils.fakeAjax =>
         if @state.sequence
+          if @state.allStudentData
+            return
           handleRunsData(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
     else
       dashRunsUrl = @urlHelper.dashRunsUrl(@state.laraBaseUrl)
@@ -243,6 +247,11 @@ App = React.createClass
     @setState
       nowShowing: ShowingOverview
 
+  onShowModule: ->
+    @setState
+      nowShowing: ShowingModule
+
+
   setPage: (page) ->
     props = page.props
     @logManager.log
@@ -273,17 +282,18 @@ App = React.createClass
 
   render: ->
     page = @getCurrentPage()
-
     (div {className: "app"},
       (ActivityBackround
         pageUrl: if page then "#{@state.laraBaseUrl}/#{page.url}" else null
       )
-      (ReportOverlay
+      (Debugger {data:@state})
+      (RightOverlay
         opened: @state.showReport
         toggle: @toggleReport
         onShowStudentDetails: @onShowStudentDetails
         onShowQuestionDetails: @onShowQuestionDetails
         onShowOverview: @onShowOverview
+        onShowModule: @onShowModule
 
         hideOverviewReport: @state.nowShowing isnt ShowingOverview
         hideStudentDetailsReport: @state.nowShowing isnt ShowingStudentDetails
@@ -294,6 +304,7 @@ App = React.createClass
         data: @state
         questions: @getQuestions()
       )
+
       (NavOverlay
         opened: @state.showNav
         toggle: @toggleNav

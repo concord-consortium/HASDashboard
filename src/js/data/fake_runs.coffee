@@ -42,15 +42,21 @@ getAnswers = (questions) ->
 
 module.exports = (students, questions, sequence) ->
 
-  activities = _.map sequence.activities, (activity) ->
-    pages = activity.pages
+  runs = _.map sequence.activities, (activity) ->
+    question_pages = _.filter(activity.pages, (page) -> page.questions.length > 0)
     _.map students, (s) ->
+      page_answers = _.map question_pages, (p,i) ->
+        submissions = getSubmissions(p.questions)
+        page_id: p.id
+        numQuestions: p.questions.length
+        answers: _.last(submissions)
+        submissions: submissions
       endpoint_url: s.endpoint_url
-      last_page_id: _.sample(pages).id
+      last_page_id: _.sample(activity.pages).id
       group_id: getGroupId()
       submissions: getSubmissions(questions)
+      page_answers: page_answers
       sequence_id: sequence.id
       updated_at:  _.now() - _.random(0, 1000000)
-      page_ids: _.map pages, 'id'
-
-  _.flatten(activities)
+      page_ids: _.map activity.pages, 'id'
+  _.flatten(runs)

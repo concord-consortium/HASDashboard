@@ -33,11 +33,20 @@ exports.getTocStudents = (runs, studentsPortalInfo) ->
 # Combines runs data provided by LARA and students data provided by Portal.
 exports.getStudentsData = (runs, studentsPortalInfo, pageId) ->
   pageRuns = _.filter runs, (r) -> _.includes r.page_ids, pageId
+
   mergeCachedSubmissions(runs, submissionCache, pageId)
   students = getBasicStudentData pageRuns, studentsPortalInfo
   students = filterOutNonCRaterScores students
   students = addGroupsMembers students
   students
+
+# Return all pages for the student.
+exports.getAllStudentsData = (runs, studentsPortalInfo) ->
+  students = getBasicStudentData runs, studentsPortalInfo
+  students = filterOutNonCRaterScores students
+  students = addGroupsMembers students
+  students
+
 
 exports.getEndpointUrls = (studentsPortalInfo) ->
 # Some students might have endpoint URL equal to null
@@ -49,7 +58,7 @@ exports.getEndpointUrls = (studentsPortalInfo) ->
 mergeCachedSubmissions = (runs, submissionCache, pageId) ->
   _.each runs, (r) ->
     # Limit submissions to given endpoint (run ID) and page.
-    key = r.endpoint_url + '-' + pageId
+    key = r.endpoint_url + '-' + pageId || "all"
     submissionCache[key] = (submissionCache[key] || []).concat(r.submissions)
     # Ensure that submissions are unique. In most cases we shouldn't receive duplicate submissions, but it might
     # happen (e.g. we receive complete data each time - old API, fake data).
@@ -60,19 +69,22 @@ mergeCachedSubmissions = (runs, submissionCache, pageId) ->
 # Note that LARA doesn't return student names or user names.
 getBasicStudentData = (runs, studentsPortalInfo) ->
   runByEndpoint = {}
-  _.each runs, (r) -> runByEndpoint[r.endpoint_url] = r
+  _.each runs, (r) ->
+    runs = runByEndpoint[r.endpoint_url] || []
+    runByEndpoint[r.endpoint_url] = _.concat(runs, r)
   studentByNameCount = {}
   _.each studentsPortalInfo, (s) ->
     studentByNameCount[s.name] ||= 0
     studentByNameCount[s.name] += 1
   _.map studentsPortalInfo, (student) ->
-    run = runByEndpoint[student.endpoint_url] || {}
+    runs = runByEndpoint[student.endpoint_url] || []
     {
       # Handle case when multiple students have the same name. Add unique username.
       name: if studentByNameCount[student.name] == 1 then student.name else "#{student.name} (#{student.username})"
       username: student.username
-      lastPageId: run.last_page_id
-      submissions: run.submissions
+      lastPageId: _.max(_.map(runs, 'last_page_id'))
+      submissions: _.flatten(_.map(runs,'submissions'))
+      page_answers: _.flatten(_.map(runs,'page_answers'))
     }
 
 # Do not display scores of non-CRater questions
@@ -102,3 +114,14 @@ addGroupsMembers = (students) ->
       # Remove student from its own group. _.without returns copy of an array.
       submission.group = _.without(groups[submission.group_id], student.name) if submission.group_id?
   students
+
+
+exports.getAllQuestions = (sequence) ->
+  questions = _.flatMapDeep sequence.activities, (act) ->
+    _.map _.filter(act.pages, (page) -> page.questions.length > 0), (p) ->
+      index: p.id
+      id: p.id
+      name: "#{act.id}-#{p.id} #{act.name }"
+      questions: p.questions
+
+  return questions
