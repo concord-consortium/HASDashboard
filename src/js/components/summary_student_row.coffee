@@ -16,8 +16,9 @@ SummaryStudentRow = React.createClass
     (tr {onClick: @doClick, className: "student_row selectable"},
       (th {className: "team_name summary"}, student.name),
       for page, page_idx in page_answers
-        (td {className: "answerblock", key: student.name + page_idx},
-          (div {className:"flex-cell"},
+        key = "#{student.name}#{page_idx}"
+        (td {className: "answerblock", key: "#{key}-answerblock"},
+          (div {className:"flex-cell", key: "#{key}-cell"},
             _.map page.answers?.answers, (a, idx) ->
               max_score = a.max_score || 6
               score = a.score
@@ -28,16 +29,16 @@ SummaryStudentRow = React.createClass
                 className = "marker incomplete"
               if a.feedback_type == "CRater::FeedbackItem"
                 className += " score_#{score} max_score_#{max_score}"
-                return (div {className: className}, "#{score}")
+                return (div {key: idx, className: className}, "#{score}")
               return ""
             if !page.submissions || page.submissions.length < 1
               [
-                (div {className: "marker incomplete"}, '')
-                (div {className: "marker incomplete"}, '')
-                (div {className: "tries none"}, '')
+                (div {key: "incomplete-1", className: "marker incomplete"}, '')
+                (div {key: "incomplete-2", className: "marker incomplete"}, '')
+                (div {key: "no-tries", className: "tries none"}, '')
               ]
             else
-              (div {className: "tries"}, page.submissions.length)
+              (div {className: "tries", key: "#{key}-tries"}, page.submissions.length)
           )
         )
     )

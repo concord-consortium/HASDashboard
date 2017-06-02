@@ -16,7 +16,7 @@ SummaryColumnHeader = React.createClass
       (div {className: 'question-summary flex-cell'},
         _.map questions, (q,i) ->
           if (i%2 == 0)
-            (div {className: 'question-head'}, q.index)
+            (div {key: q.index, className: 'question-head'}, q.index)
           else
             ""
         (div {className: 'question-head'}, 'try')
