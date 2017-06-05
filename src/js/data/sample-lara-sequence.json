@@ -1,0 +1,307 @@
+{
+  "name": "Sample Sequence",
+  "url": "https://localhost:3000/sequences/123",
+  "activities": [
+    {
+      "name": "Fake activity 1",
+      "url": "/activities/1",
+      "id": 1,
+      "pages": [
+        {
+          "name": "Page 1",
+          "id": 1,
+          "url": "/activities/1/pages/1",
+          "questions": [
+            {
+              "index": 1,
+              "name": "Multiple Choice Question element",
+              "prompt": "why does ..."
+            },
+            {
+              "index": 2,
+              "name": null,
+              "prompt": "Explain your answer."
+            },
+            {
+              "index": 3,
+              "name": "Multiple Choice Question element",
+              "prompt": "How certain are you about your claim based on your explanation?"
+            },
+            {
+              "index": 4,
+              "name": null,
+              "prompt": "Explain what influenced your certainty rating."
+            }
+          ]
+        },
+        {
+          "name": "Page 2 trod herbivores La mark found",
+          "id": 2,
+          "url": "/activities/1/pages/2",
+          "questions": []
+        },
+        {
+          "name": "Page 3",
+          "id": 3,
+          "url": "/activities/1/pages/3",
+          "questions": []
+        },
+        {
+          "name": "Page 4",
+          "id": 4,
+          "url": "/activities/1/pages/4",
+          "questions": []
+        }
+      ]
+    },
+    {
+      "name": "Fake activity 2",
+      "url": "/activities/2",
+      "id": 2,
+      "pages": [
+        {
+          "name": "Page 5",
+          "id": 5,
+          "url": "/activities/2/pages/5",
+          "questions": []
+        },
+        {
+          "name": "Page 6 instead were gray Brea than wolves",
+          "id": 6,
+          "url": "/activities/2/pages/6",
+          "questions": [
+            {
+              "index": 5,
+              "name": "Multiple Choice Question element",
+              "prompt": "why does ..."
+            },
+            {
+              "index": 6,
+              "name": null,
+              "prompt": "Explain your answer."
+            },
+            {
+              "index": 7,
+              "name": "Multiple Choice Question element",
+              "prompt": "How certain are you about your claim based on your explanation?"
+            },
+            {
+              "index": 8,
+              "name": null,
+              "prompt": "Explain what influenced your certainty rating."
+            }
+          ]
+        },
+        {
+          "name": "Page 7",
+          "id": 7,
+          "url": "/activities/2/pages/7",
+          "questions": []
+        },
+        {
+          "name": "Page 8",
+          "id": 8,
+          "url": "/activities/2/pages/8",
+          "questions": [
+            {
+              "index": 9,
+              "name": "Multiple Choice Question element",
+              "prompt": "why does ..."
+            },
+            {
+              "index": 10,
+              "name": null,
+              "prompt": "Explain your answer."
+            },
+            {
+              "index": 11,
+              "name": "Multiple Choice Question element",
+              "prompt": "How certain are you about your claim based on your explanation?"
+            },
+            {
+              "index": 12,
+              "name": null,
+              "prompt": "Explain what influenced your certainty rating."
+            }
+          ]
+        },
+        {
+          "name": "Page 9 sort like that grappling if at horses that them support",
+          "id": 9,
+          "url": "/activities/2/pages/9",
+          "questions": [
+            {
+              "index": 13,
+              "name": "Multiple Choice Question element",
+              "prompt": "why does ..."
+            },
+            {
+              "index": 14,
+              "name": null,
+              "prompt": "Explain your answer."
+            },
+            {
+              "index": 15,
+              "name": "Multiple Choice Question element",
+              "prompt": "How certain are you about your claim based on your explanation?"
+            },
+            {
+              "index": 16,
+              "name": null,
+              "prompt": "Explain what influenced your certainty rating."
+            }
+          ]
+        },
+        {
+          "name": "Page 10",
+          "id": 10,
+          "url": "/activities/2/pages/10",
+          "questions": []
+        },
+        {
+          "name": "Page 11",
+          "id": 11,
+          "url": "/activities/2/pages/11",
+          "questions": []
+        },
+        {
+          "name": "Page 12",
+          "id": 12,
+          "url": "/activities/2/pages/12",
+          "questions": [
+            {
+              "index": 17,
+              "name": "Multiple Choice Question element",
+              "prompt": "why does ..."
+            },
+            {
+              "index": 18,
+              "name": null,
+              "prompt": "Explain your answer."
+            },
+            {
+              "index": 19,
+              "name": "Multiple Choice Question element",
+              "prompt": "How certain are you about your claim based on your explanation?"
+            },
+            {
+              "index": 20,
+              "name": null,
+              "prompt": "Explain what influenced your certainty rating."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fake activity 3",
+      "url": "/activities/3",
+      "id": 3,
+      "pages": [
+        {
+          "name": "Page 13",
+          "id": 13,
+          "url": "/activities/3/pages/13",
+          "questions": [
+            {
+              "index": 21,
+              "name": "Multiple Choice Question element",
+              "prompt": "why does ..."
+            },
+            {
+              "index": 22,
+              "name": null,
+              "prompt": "Explain your answer."
+            },
+            {
+              "index": 23,
+              "name": "Multiple Choice Question element",
+              "prompt": "How certain are you about your claim based on your explanation?"
+            },
+            {
+              "index": 24,
+              "name": null,
+              "prompt": "Explain what influenced your certainty rating."
+            }
+          ]
+        },
+        {
+          "name": "Page 14",
+          "id": 14,
+          "url": "/activities/3/pages/14",
+          "questions": []
+        },
+        {
+          "name": "Page 15",
+          "id": 15,
+          "url": "/activities/3/pages/15",
+          "questions": []
+        },
+        {
+          "name": "Page 16",
+          "id": 16,
+          "url": "/activities/3/pages/16",
+          "questions": []
+        },
+        {
+          "name": "Page 17",
+          "id": 17,
+          "url": "/activities/3/pages/17",
+          "questions": []
+        },
+        {
+          "name": "Page 18 falls grappling injuries the Wolves found of such",
+          "id": 18,
+          "url": "/activities/3/pages/18",
+          "questions": []
+        },
+        {
+          "name": "Page 19",
+          "id": 19,
+          "url": "/activities/3/pages/19",
+          "questions": []
+        }
+      ]
+    },
+    {
+      "name": "Fake activity 4",
+      "url": "/activities/4",
+      "id": 4,
+      "pages": [
+        {
+          "name": "Page 20 evidence Brea of been The of Brea",
+          "id": 20,
+          "url": "/activities/4/pages/20",
+          "questions": []
+        },
+        {
+          "name": "Page 21",
+          "id": 21,
+          "url": "/activities/4/pages/21",
+          "questions": [
+            {
+              "index": 25,
+              "name": "Multiple Choice Question element",
+              "prompt": "why does ..."
+            },
+            {
+              "index": 26,
+              "name": null,
+              "prompt": "Explain your answer."
+            },
+            {
+              "index": 27,
+              "name": "Multiple Choice Question element",
+              "prompt": "How certain are you about your claim based on your explanation?"
+            },
+            {
+              "index": 28,
+              "name": null,
+              "prompt": "Explain what influenced your certainty rating."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -198,10 +198,15 @@ App = React.createClass
     if @useFakeData()
       utils.fakeAjax =>
         if @state.sequence
-          if @state.allSequenceAnswers
-            return
-          handleRunsData(FakeRuns.fakeRuns(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
-          handleAllSequenceAnswers(FakeRuns.allSequenceAnswers(@state.studentsPortalInfo, @state.sequence))
+          if !@state.allSequenceAnswers
+            sequence = @state.sequence
+            studentsPortalInfo = @state.studentsPortalInfo
+            allSequenceAnswers = FakeRuns.allSequenceAnswers(studentsPortalInfo, sequence)
+            handleAllSequenceAnswers(allSequenceAnswers)
+          fakeRuns = FakeRuns.fakeRuns(@state.studentsPortalInfo, @getQuestions(), @state.sequence)
+          debugger
+          handleRunsData(fakeRuns)
+
     else
       dashRunsUrl = @urlHelper.dashRunsUrl(@state.laraBaseUrl)
       @apiCall
