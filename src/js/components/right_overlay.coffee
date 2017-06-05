@@ -19,7 +19,6 @@ ReportTabsOverlay = React.createClass
     this.setState(open: false, nowShowing: "nothing")
 
   clickTab: (toShow) ->
-    console.log "yargs"
     if(@state.nowShowing == toShow)
       @showNothing()
     else

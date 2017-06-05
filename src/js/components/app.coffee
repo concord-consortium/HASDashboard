@@ -12,7 +12,7 @@ Debugger          = React.createFactory require "./debugger.coffee"
 
 offeringFakeData  = require "../data/fake_offering.coffee"
 sequenceFakeData  = require "../data/fake_sequence.coffee"
-runsFakeData      = require "../data/fake_runs.coffee"
+FakeRuns          = require "../data/fake_runs.coffee"
 dataHelpers       = require "../data/helpers.coffee"
 utils             = require "../utils.coffee"
 UrlHelper         = require "../data/urls.coffee"
@@ -179,25 +179,29 @@ App = React.createClass
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
     pageId = @pageId()
+    handleAllSequenceAnswers = (runs) =>
+      allSequenceAnswers = dataHelpers.mergeAllSequenceAnswers(runs, @state.studentsPortalInfo)
+      @setState
+        allSequenceAnswers: allSequenceAnswers
+
     handleRunsData = (data) =>
       data = dataHelpers.toLatestVersion(data)
       runs = data.runs
       timestamp = data.timestamp
       students = dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, pageId)
-      allStudentData = dataHelpers.getAllStudentsData(runs, @state.studentsPortalInfo)
       tocStudents = dataHelpers.getTocStudents(runs, @state.studentsPortalInfo)
       @setState
         students: students
-        allStudentData: allStudentData
         tocStudents: tocStudents
         pageDataTimestamps: @updatedPageDataTimestamps(pageId, timestamp)
 
     if @useFakeData()
       utils.fakeAjax =>
         if @state.sequence
-          if @state.allStudentData
+          if @state.allSequenceAnswers
             return
-          handleRunsData(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
+          handleRunsData(FakeRuns.fakeRuns(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
+          handleAllSequenceAnswers(FakeRuns.allSequenceAnswers(@state.studentsPortalInfo, @state.sequence))
     else
       dashRunsUrl = @urlHelper.dashRunsUrl(@state.laraBaseUrl)
       @apiCall

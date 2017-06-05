@@ -40,14 +40,6 @@ exports.getStudentsData = (runs, studentsPortalInfo, pageId) ->
   students = addGroupsMembers students
   students
 
-# Return all pages for the student.
-exports.getAllStudentsData = (runs, studentsPortalInfo) ->
-  students = getBasicStudentData runs, studentsPortalInfo
-  students = filterOutNonCRaterScores students
-  students = addGroupsMembers students
-  students
-
-
 exports.getEndpointUrls = (studentsPortalInfo) ->
 # Some students might have endpoint URL equal to null
 # (it means they haven't started activity yet).
@@ -84,8 +76,28 @@ getBasicStudentData = (runs, studentsPortalInfo) ->
       username: student.username
       lastPageId: _.max(_.map(runs, 'last_page_id'))
       submissions: _.flatten(_.map(runs,'submissions'))
-      page_answers: _.flatten(_.map(runs,'page_answers'))
+      allSequenceAnswers: _.flatten(_.map(runs,'allSequenceAnswers'))
     }
+
+# Note that LARA doesn't return student names or user names.
+exports.mergeAllSequenceAnswers = (runs, studentsPortalInfo) ->
+  runByEndpoint = {}
+  _.each runs, (r) ->
+    runs = runByEndpoint[r.endpoint_url] || []
+    runByEndpoint[r.endpoint_url] = _.concat(runs, r)
+  studentByNameCount = {}
+  _.each studentsPortalInfo, (s) ->
+    studentByNameCount[s.name] ||= 0
+    studentByNameCount[s.name] += 1
+  _.map studentsPortalInfo, (student) ->
+    runs = runByEndpoint[student.endpoint_url] || []
+    {
+      # Handle case when multiple students have the same name. Add unique username.
+      name: if studentByNameCount[student.name] == 1 then student.name else "#{student.name} (#{student.username})"
+      username: student.username
+      allSequenceAnswers: _.flatten(_.map(runs,'answers'))
+    }
+
 
 # Do not display scores of non-CRater questions
 filterOutNonCRaterScores = (students) ->
@@ -118,10 +130,12 @@ addGroupsMembers = (students) ->
 
 exports.getAllQuestions = (sequence) ->
   questions = _.flatMapDeep sequence.activities, (act) ->
-    _.map _.filter(act.pages, (page) -> page.questions.length > 0), (p) ->
-      index: p.id
-      id: p.id
-      name: "#{act.id}-#{p.id} #{act.name }"
-      questions: p.questions
+    pages  = _.map act.pages, (page,index) ->
+      index: index+1
+      id: page.id
+      name: "#{act.id}-#{index+1} #{page.name }"
+      questions: page.questions
+    _.filter(pages, (page) -> page.questions.length > 0)
+
 
   return questions

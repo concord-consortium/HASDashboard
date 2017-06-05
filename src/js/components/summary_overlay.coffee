@@ -16,7 +16,7 @@ SummaryOverlay = React.createClass
     (div { className: "report_overlay" },
       (div {className: @className("content")},
         (SummaryTable
-          students: @props.data.allStudentData
+          students: @props.data.allSequenceAnswers
           questions: @props.questions
           hidden: @props.hideOverviewReport
           sequence: @props.data.sequence
@@ -25,6 +25,5 @@ SummaryOverlay = React.createClass
         )
       )
     )
-
 
 module.exports = SummaryOverlay
