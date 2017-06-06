@@ -8,7 +8,6 @@ ActivityBackround = React.createFactory require "./activity_background.coffee"
 RightOverlay      = React.createFactory require "./right_overlay.coffee"
 NavOverlay        = React.createFactory require "./nav_overlay.coffee"
 Error             = React.createFactory require "./error_alert.coffee"
-Debugger          = React.createFactory require "./debugger.coffee"
 
 offeringFakeData  = require "../data/fake_offering.coffee"
 sequenceFakeData  = require "../data/fake_sequence.coffee"
@@ -204,7 +203,6 @@ App = React.createClass
             allSequenceAnswers = FakeRuns.allSequenceAnswers(studentsPortalInfo, sequence)
             handleAllSequenceAnswers(allSequenceAnswers)
           fakeRuns = FakeRuns.fakeRuns(@state.studentsPortalInfo, @getQuestions(), @state.sequence)
-          debugger
           handleRunsData(fakeRuns)
 
     else
@@ -295,7 +293,6 @@ App = React.createClass
       (ActivityBackround
         pageUrl: if page then "#{@state.laraBaseUrl}/#{page.url}" else null
       )
-      (Debugger {data:@state})
       (RightOverlay
         opened: @state.showReport
         toggle: @toggleReport

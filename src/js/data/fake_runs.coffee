@@ -40,7 +40,7 @@ getAnswers = (questions) ->
     results.push answer
   results
 
-# Runs for a particular page. This was the old method
+# Random fake runs. (different for each page change)
 exports.fakeRuns = (students, questions, sequence) ->
   runs = _.map sequence.activities, (activity) ->
     _.map students, (s) ->
@@ -54,22 +54,8 @@ exports.fakeRuns = (students, questions, sequence) ->
   _.flatten(runs)
 
 
-#  "sequence": {
-#     "activities": [
-#       {
-#         "pages": [
-#           {
-#             "questions": [
-#                   {
-#                     "name": "Multiple Choice Question element",
-#
-# Path: sequence.activitites.pages.questions[]
-#
-#
-#
-# Somewhat different approach: we just pretend
-# to return data structured the same as the API call
-# that we will make.
+# Return data structured the same as the API call
+# that we will make. See README.md
 exports.allSequenceAnswers = (students, sequence) ->
   emptyAnswer = {answers: []}
   generateFakeRun = (student) ->
