@@ -3,6 +3,7 @@ require '../../css/report_overlay.styl'
 React        = require 'react'
 openable     = require './mixins/openable.coffee'
 s            = require '../util/strings.coffee'
+NowShowing   = require '../now_showing.coffee'
 Report       = React.createFactory require './report.coffee'
 StudentDetailsReport = React.createFactory require './student_details_report.coffee'
 QuestionDetailsReport = React.createFactory require './question_details_report.coffee'
@@ -27,25 +28,30 @@ ReportOverlay = React.createClass
   render: ->
     (div {className: "report_overlay"},
       (div {className: @className("content")},
+
         (Report
           students: @sorted_students()
           questions: @props.questions
-          hidden: @props.hideOverviewReport
+          hidden: (@props.nowShowing != NowShowing.ShowingPageReport)
           clickStudent: @props.onShowStudentDetails
           clickColumnHeader: @props.onShowQuestionDetails
         )
-        (StudentDetailsReport
-          student: @props.data.selectedStudent
-          questions: @props.questions
-          returnClick: @props.onShowOverview
-          hidden: @props.hideStudentDetailsReport
-        )
-        (QuestionDetailsReport
-          question: @props.data.selectedQuestion
-          students: @props.data.students
-          returnClick: @props.onShowOverview
-          hidden: @props.hideQuestionDetailsReport
-        )
+
+        if(@props.nowShowing == NowShowing.ShowingStudentDetails)
+          (StudentDetailsReport
+            student: @props.data.selectedStudent
+            questions: @props.questions
+            returnClick: @props.onShowOverview
+            hidden:false
+          )
+
+        if(@props.nowShowing == NowShowing.ShowingQuestionDetails)
+          (QuestionDetailsReport
+            question: @props.data.selectedQuestion
+            students: @props.data.students
+            returnClick: @props.onShowOverview
+            hidden:false
+          )
       )
     )
 

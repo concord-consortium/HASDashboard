@@ -5,50 +5,46 @@ s                 = require '../util/strings.coffee'
 SummaryOverlay    = React.createFactory require './summary_overlay.coffee'
 ReportOverlay     = React.createFactory require './report_overlay.coffee'
 NowShowing        = require '../now_showing.coffee'
-{ ShowingModule, ShowingOverview, ShowingStudentDetails, ShowingQuestionDetails } = NowShowing
+
 { div, span} = React.DOM
 
 require '../../css/right_overlay.styl'
 
 
 ReportTabsOverlay = React.createClass
-  getInitialState: ->
-    open: false,
-    nowShowing: "nothing"
-  showNothing: ->
-    this.setState(open: false, nowShowing: "nothing")
-
-  clickTab: (toShow) ->
-    if(@state.nowShowing == toShow)
-      @showNothing()
-    else
-      this.setState(open:true, nowShowing:toShow)
-
-  clickModule: ->
-    @clickTab("show-module")
-
-  clickReport: ->
-    @clickTab("show-report")
+  displayName: "ReportTabsOverlay"
 
   className: ->
-    return "right-overlay #{@state.nowShowing}"
+    classes = @props.nowShowing
+    if @showPageReportTab()
+      classes = NowShowing.ShowingPageReport
+    return "right-overlay #{classes}"
+
+  showPageReportTab: ->
+    nowShowing = @props.nowShowing
+    return(
+      nowShowing == NowShowing.ShowingPageReport ||
+      nowShowing == NowShowing.ShowingQuestionDetails ||
+      nowShowing == NowShowing.ShowingStudentDetails
+    )
+
 
   render: ->
-    nowShowing = @state.nowShowing
+    nowShowing = @props.nowShowing
     moduleTabClassName = reportTabClassName = "tab"
-    if nowShowing == "show-report"
+    if @showPageReportTab()
       reportTabClassName = "tab open"
       reportView = (ReportOverlay @props)
-    if nowShowing == "show-module"
+    if nowShowing == NowShowing.ShowingSummary
       moduleTabClassName = "tab open"
       reportView = (SummaryOverlay @props)
 
     (div {className: @className()},
       (div {className: "tabs"},
-        (div {className: reportTabClassName, onClick: @clickReport},
+        (div {className: reportTabClassName, onClick: @props.onClickPageReport},
           s "~REPORT"
         )
-        (div {className: moduleTabClassName, onClick: @clickModule},
+        (div {className: moduleTabClassName, onClick: @props.onClickSummary},
           s "~MODULE_SUMMARY"
         )
       )

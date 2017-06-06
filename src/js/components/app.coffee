@@ -18,8 +18,6 @@ UrlHelper         = require "../data/urls.coffee"
 LogManagerHelper  = require "../log_manager_helper.coffee"
 NowShowing        = require "../now_showing.coffee"
 
-{ ShowingModule, ShowingOverview, ShowingStudentDetails, ShowingQuestionDetails } = NowShowing
-
 ACTIVITY_ID_REGEXP = /activities\/(\d+)/
 SEQUENCE_ID_REGEXP = /sequences\/(\d+)/
 REPORT_UPDATE_INTERVAL = 15000 # ms
@@ -38,7 +36,7 @@ App = React.createClass
     sequence: null
     showReport: false
     showNav: true
-    nowShowing: ShowingOverview
+    nowShowing: NowShowing.ShowingToc
     selectedStudent: null
     selectedQuestion: null
     # LARA returns runs data per page, so we need to save timestamps for every single page (hash).
@@ -216,19 +214,20 @@ App = React.createClass
         dataType: "jsonp"
         success: handleRunsData
 
-  toggleReport: ->
-    showReportNext = not @state.showReport
-    showNavNext    = @state.showNav and (not showReportNext)
+  onClickTab: (toShow, alternate=NowShowing.ShowingNothing) ->
+    nextShowing = if @state.nowShowing != toShow then  toShow else alternate
     @setState
-      showReport: showReportNext
-      showNav: showNavNext
+      nowShowing: nextShowing
 
-  toggleNav: ->
-    showNavNext    = not @state.showNav
-    showReportNext = @state.showReport and (not showNavNext)
-    @setState
-      showReport: showReportNext
-      showNav: showNavNext
+  onClickPageReport: ->
+    @onClickTab(NowShowing.ShowingPageReport)
+
+  onClickSummary: ->
+    @onClickTab(NowShowing.ShowingSummary)
+
+  onClickNav: ->
+    @onClickTab(NowShowing.ShowingToc)
+
 
   onShowStudentDetails: (evt,student)->
     @logManager.log
@@ -238,7 +237,7 @@ App = React.createClass
         id: student.id
     @setState
       selectedStudent: student
-      nowShowing: ShowingStudentDetails
+      nowShowing: NowShowing.ShowingStudentDetails
 
   onShowQuestionDetails: (evt,question)->
     @logManager.log
@@ -248,16 +247,7 @@ App = React.createClass
         questionPrompt: question.prompt
     @setState
       selectedQuestion: question
-      nowShowing: ShowingQuestionDetails
-
-  onShowOverview: ->
-    @setState
-      nowShowing: ShowingOverview
-
-  onShowModule: ->
-    @setState
-      nowShowing: ShowingModule
-
+      nowShowing: NowShowing.ShowingQuestionDetails
 
   setPage: (page) ->
     props = page.props
@@ -268,7 +258,6 @@ App = React.createClass
         id: props.id
         hasQuestion: props.hasQuestion
     @setState
-      nowShowing: ShowingOverview
       selectedQuestion: null
       selectedStudent: null
 
@@ -294,17 +283,11 @@ App = React.createClass
         pageUrl: if page then "#{@state.laraBaseUrl}/#{page.url}" else null
       )
       (RightOverlay
-        opened: @state.showReport
-        toggle: @toggleReport
+        nowShowing: @state.nowShowing
+        onClickPageReport: @onClickPageReport
+        onClickSummary: @onClickSummary
         onShowStudentDetails: @onShowStudentDetails
         onShowQuestionDetails: @onShowQuestionDetails
-        onShowOverview: @onShowOverview
-        onShowModule: @onShowModule
-
-        hideOverviewReport: @state.nowShowing isnt ShowingOverview
-        hideStudentDetailsReport: @state.nowShowing isnt ShowingStudentDetails
-        hideQuestionDetailsReport: @state.nowShowing isnt ShowingQuestionDetails
-
         selectedQuestion: @state.selectedQuestion
         selectedStudent: @state.selectedStudent
         data: @state
@@ -312,8 +295,8 @@ App = React.createClass
       )
 
       (NavOverlay
-        opened: @state.showNav
-        toggle: @toggleNav
+        opened: @state.nowShowing == NowShowing.ShowingToc
+        toggle: @onClickNav
         sequence: @state.sequence
         students: @state.tocStudents
         setPage: @setPage
