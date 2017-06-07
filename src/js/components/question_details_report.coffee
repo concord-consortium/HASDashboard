@@ -4,6 +4,7 @@ React = require 'react'
 _ = require 'lodash'
 Scrollable = React.createFactory require './scrollable.coffee'
 ScoreImage = React.createFactory require './score_image.coffee'
+Histogram  = React.createFactory require './histogram.coffee'
 
 {div, h3, p, strong} = React.DOM
 
@@ -36,9 +37,10 @@ QuestionDetailsReport = React.createClass
     className = "question-details"
     className += " hidden-right" if @props.hidden
     answers = @getAnswers()
-
+    counts = _.map(_.groupBy(answers,'score'), (value, key) ->  {value: key, count: value.length})
     (div {className: className},
       (Scrollable {returnClick: @props.returnClick, header: @getHeader()},
+        (Histogram {counts:counts , colors:{0: 'red', 1: 'blue', 2:'green', 3:'yellow', default: 'gray'}})
         if @props.question?
           (div {className: "question-details-content"},
             (div {}, @props.question.prompt)
