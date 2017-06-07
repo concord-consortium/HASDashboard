@@ -97,8 +97,8 @@ getPageStudents = (students) ->
 getActivityStudents = (activities, pageStudents) ->
   _.reduce activities, (result, activity) ->
     result[activity.id] = _.reduce activity.pages, (actStudents, p) ->
-                            actStudents.concat(pageStudents[p.id] || [])
-                          , []
+      actStudents.concat(pageStudents[p.id] || [])
+    , []
     result
   , {}
 

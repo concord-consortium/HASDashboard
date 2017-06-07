@@ -28,8 +28,10 @@ ModuleSummary = React.createClass
                 (SummaryColumnHeader
                   key: idx
                   name: question.name
+                  pageId: question.pageId
                   questions: question.questions
-                  onClick: (evt) => @props.clickColumnHeader(evt,question)
+                  setPageId: @props.setPageId
+                  clickQuestion: @props.clickQuestion
                 )
             )
             _.map @props.students, (student,idx) =>

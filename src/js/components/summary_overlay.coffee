@@ -11,6 +11,15 @@ QuestionDetailsReport = React.createFactory require './question_details_report.c
 SummaryOverlay = React.createClass
 
   mixins: [openable]
+  setPageId: (pageId) ->
+    props =
+      id: @props.pageId
+    @props.setPage({props:props})
+    @props.onClickPageReport()
+
+  setQuestion: (pageId, question) ->
+    @setPageId(pageId)
+    @props.onShowQuestionDetails(null, question)
 
   render: ->
     (div { className: "report_overlay" },
@@ -21,7 +30,8 @@ SummaryOverlay = React.createClass
           hidden: @props.hideOverviewReport
           sequence: @props.data.sequence
           clickStudent: @props.onShowStudentDetails
-          clickColumnHeader: @props.onShowQuestionDetails
+          setPageId: @setPageId
+          clickQuestion: @setQuestion
         )
       )
     )

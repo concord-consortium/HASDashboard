@@ -41,7 +41,7 @@ ReportOverlay = React.createClass
           (StudentDetailsReport
             student: @props.data.selectedStudent
             questions: @props.questions
-            returnClick: @props.onShowOverview
+            returnClick: @props.onClickPageReport
             hidden:false
           )
 
@@ -49,7 +49,7 @@ ReportOverlay = React.createClass
           (QuestionDetailsReport
             question: @props.data.selectedQuestion
             students: @props.data.students
-            returnClick: @props.onShowOverview
+            returnClick: @props.onClickPageReport
             hidden:false
           )
       )

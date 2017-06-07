@@ -132,7 +132,7 @@ exports.getAllQuestions = (sequence) ->
   questions = _.flatMapDeep sequence.activities, (act) ->
     pages  = _.map act.pages, (page,index) ->
       index: index+1
-      id: page.id
+      pageId: page.id
       name: "#{act.id}-#{index+1} #{page.name }"
       questions: page.questions
     _.filter(pages, (page) -> page.questions.length > 0)

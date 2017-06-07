@@ -290,6 +290,7 @@ App = React.createClass
         onShowQuestionDetails: @onShowQuestionDetails
         selectedQuestion: @state.selectedQuestion
         selectedStudent: @state.selectedStudent
+        setPage: @setPage
         data: @state
         questions: @getQuestions()
       )
