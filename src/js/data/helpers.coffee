@@ -129,11 +129,11 @@ addGroupsMembers = (students) ->
 
 
 exports.getAllQuestions = (sequence) ->
-  questions = _.flatMapDeep sequence.activities, (act) ->
+  questions = _.flatMapDeep sequence.activities, (act, actindex) ->
     pages  = _.map act.pages, (page,index) ->
       index: index+1
       pageId: page.id
-      name: "#{act.id}-#{index+1} #{page.name }"
+      name: "#{actindex+1}-#{index+1} #{page.name }"
       questions: page.questions
     _.filter(pages, (page) -> page.questions.length > 0)
 

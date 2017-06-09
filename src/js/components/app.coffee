@@ -172,14 +172,38 @@ App = React.createClass
     timestampsUpdate[pageId] = newTimestamp
     _.assign({}, @state.pageDataTimestamps, timestampsUpdate)
 
+
+  handleAllSequenceAnswers: (data) ->
+    # data = dataHelpers.toLatestVersion(data)
+    runs = data.runs
+    timestamp = data.timestamp
+    allSequenceAnswers = dataHelpers.mergeAllSequenceAnswers(runs, @state.studentsPortalInfo)
+    @setState
+      allSequenceAnswers: allSequenceAnswers
+
+  requestAllSequenceData: ->
+    if @useFakeData()
+      allSequenceAnswers = FakeRuns.allSequenceAnswers(@state.studentsPortalInfo, @state.sequence)
+      @handleAllSequenceAnswers({runs: allSequenceAnswers})
+    else
+      allRunsUrl = @urlHelper.allSequenceRunsUrl(@state.laraBaseUrl)
+      sequenceRun = @state.sequenceId
+      params =
+        endpoint_urls: dataHelpers.getEndpointUrls(@state.studentsPortalInfo)
+        submissions_created_after: 0 # TODO: @getPageDataTimestamp('sequence')
+      if sequenceRun?
+        params['sequence_runs'] = true
+      @apiCall
+        url: allRunsUrl
+        data: params
+        dataType: "jsonp"
+        success: @handleAllSequenceAnswers
+
   setStudents: ->
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
     pageId = @pageId()
-    handleAllSequenceAnswers = (runs) =>
-      allSequenceAnswers = dataHelpers.mergeAllSequenceAnswers(runs, @state.studentsPortalInfo)
-      @setState
-        allSequenceAnswers: allSequenceAnswers
+
 
     handleRunsData = (data) =>
       data = dataHelpers.toLatestVersion(data)
@@ -187,6 +211,8 @@ App = React.createClass
       timestamp = data.timestamp
       students = dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, pageId)
       tocStudents = dataHelpers.getTocStudents(runs, @state.studentsPortalInfo)
+      if !@state.allSequenceAnswers
+        @requestAllSequenceData()
       @setState
         students: students
         tocStudents: tocStudents
@@ -195,13 +221,9 @@ App = React.createClass
     if @useFakeData()
       utils.fakeAjax =>
         if @state.sequence
-          if !@state.allSequenceAnswers
-            sequence = @state.sequence
-            studentsPortalInfo = @state.studentsPortalInfo
-            allSequenceAnswers = FakeRuns.allSequenceAnswers(studentsPortalInfo, sequence)
-            handleAllSequenceAnswers(allSequenceAnswers)
           fakeRuns = FakeRuns.fakeRuns(@state.studentsPortalInfo, @getQuestions(), @state.sequence)
           handleRunsData(fakeRuns)
+          @requestAllSequenceData()
 
     else
       dashRunsUrl = @urlHelper.dashRunsUrl(@state.laraBaseUrl)

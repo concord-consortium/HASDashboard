@@ -13,10 +13,14 @@ SummaryStudentRow = React.createClass
   render: ->
     student = @props.student
     allSequenceAnswers = student.allSequenceAnswers
+    questionPages = @props.questions
+    notAnsweredRow = [{},{}]
+    
     (tr {onClick: @doClick, className: "student_row selectable"},
       (th {className: "team_name summary"}, student.name),
-      for page, page_idx in allSequenceAnswers
+      _.map questionPages, (page, page_idx) ->
         key = "#{student.name}#{page_idx}"
+        page = allSequenceAnswers[page_idx] || {answers: notAnsweredRow}
         (td {className: "answerblock", key: "#{key}-answerblock"},
           (div {className:"flex-cell", key: "#{key}-cell"},
             _.map page.answers, (a, idx) ->
@@ -31,7 +35,7 @@ SummaryStudentRow = React.createClass
                 className += " score_#{score} max_score_#{max_score}"
                 return (div {key: idx, className: className}, "#{score}")
               return ""
-            if page.tryCount < 1
+            if page.tryCount? < 1
               [
                 (div {key: "incomplete-1", className: "marker incomplete"}, '')
                 (div {key: "incomplete-2", className: "marker incomplete"}, '')

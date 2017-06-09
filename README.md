@@ -65,7 +65,7 @@ Dashboard run sample data (response from LARA):
     ]
 
 
-### Get all the (most recent) student answers for a sequence: `LARA/api/v1/all_answers`
+### Get all the (most recent) student answers for a sequence: `LARA/api/v1/dashboard_runs_all`
 TBD: This will take an regular run or sequence run as an argument in LARA
 Fake Data Generation: `../data/fake_runs.coffee` `#allSequenceAnswers`
 Fake Data Sample: `../data/sample-lara-all-sequence-answers.json`
