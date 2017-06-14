@@ -7,7 +7,6 @@ NowShowing   = require '../now_showing.coffee'
 Report       = React.createFactory require './report.coffee'
 StudentDetailsReport = React.createFactory require './student_details_report.coffee'
 QuestionDetailsReport = React.createFactory require './question_details_report.coffee'
-
 {div} = React.DOM
 
 ReportOverlay = React.createClass
@@ -26,17 +25,17 @@ ReportOverlay = React.createClass
     ).reverse()
 
   render: ->
+    onClickReload =  @props.onClickReload?.runs
     (div {className: "report_overlay"},
       (div {className: @className("content")},
-
         (Report
           students: @sorted_students()
           questions: @props.questions
           hidden: (@props.nowShowing != NowShowing.ShowingPageReport)
           clickStudent: @props.onShowStudentDetails
           clickColumnHeader: @props.onShowQuestionDetails
+          onClickReload: onClickReload
         )
-
         if(@props.nowShowing == NowShowing.ShowingStudentDetails)
           (StudentDetailsReport
             student: @props.data.selectedStudent

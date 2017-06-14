@@ -7,6 +7,7 @@ helper     = require '../data/helpers.coffee'
 
 SummaryStudentRow = React.createFactory require './summary_student_row.coffee'
 SummaryColumnHeader = React.createFactory require './summary_column_header.coffee'
+ReloadButton = React.createFactory require './reload_button.coffee'
 
 {div, table, tbody, th, tr, td} = React.DOM
 
@@ -14,8 +15,11 @@ ModuleSummary = React.createClass
   render: ->
     questions = helper.getAllQuestions(@props.sequence)
     className = "module-summary"
+    callback = @props.onClickReload
     (div {className: className},
-      (div {className: "heading-container"})
+      (div {className: "heading-container"},
+        (ReloadButton {onLoadComplete: callback})
+      )
       (div {className: "table-container"},
         (table {className:"summary"},
           (tbody {},

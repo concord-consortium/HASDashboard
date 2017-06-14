@@ -30,6 +30,7 @@ SummaryOverlay = React.createClass
           hidden: @props.hideOverviewReport
           sequence: @props.data.sequence
           clickStudent: @props.onShowStudentDetails
+          onClickReload: @props.onClickReload?.all
           setPageId: @setPageId
           clickQuestion: @setQuestion
         )

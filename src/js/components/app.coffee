@@ -57,18 +57,24 @@ App = React.createClass
       parameters:
         offering: params.offering
 
-    @reloadInterval = setInterval =>
-      # Don"t call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
-      # https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
-      # If it"s not supported, document.hidden will be undefined, but that"s fine for our needs.
-      return if document.hidden
-      # Dont need to reload data if we are just generating it randomly
-      return if @useFakeData()
-      # New students can be added to class or their endpoint_url can be updated once
-      # they start an activity.
-      @setOffering(params.offering)
-      @setStudents()
-    , REPORT_UPDATE_INTERVAL
+
+
+    @reloadInterval = setInterval @requestRuns, REPORT_UPDATE_INTERVAL
+
+  requestRuns: (callback) ->
+    # Don"t call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
+    # https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
+    # If it"s not supported, document.hidden will be undefined, but that"s fine for our needs.
+    return if document.hidden
+    # Dont need to reload data if we are just generating it randomly, but simulate network request
+    if @useFakeData()
+      setTimeout callback, 2000
+      return
+    # New students can be added to class or their endpoint_url can be updated once
+    # they start an activity.
+    @setOffering(utils.urlParams().offering)
+    @setStudents(callback)
+
 
   stopRefreshing: ->
     clearInterval(@reloadInterval)
@@ -173,18 +179,22 @@ App = React.createClass
     _.assign({}, @state.pageDataTimestamps, timestampsUpdate)
 
 
-  handleAllSequenceAnswers: (data) ->
+  handleAllSequenceAnswers: (data, callback) ->
     # data = dataHelpers.toLatestVersion(data)
     runs = data.runs
     timestamp = data.timestamp
     allSequenceAnswers = dataHelpers.mergeAllSequenceAnswers(runs, @state.studentsPortalInfo)
     @setState
       allSequenceAnswers: allSequenceAnswers
+    if callback
+      callback()
 
-  requestAllSequenceData: ->
+  requestAllSequenceData: (callback) ->
     if @useFakeData()
-      allSequenceAnswers = FakeRuns.allSequenceAnswers(@state.studentsPortalInfo, @state.sequence)
-      @handleAllSequenceAnswers({runs: allSequenceAnswers})
+      setTimeout ()=>
+        allSequenceAnswers = FakeRuns.allSequenceAnswers(@state.studentsPortalInfo, @state.sequence)
+        @handleAllSequenceAnswers({runs: allSequenceAnswers}, callback)
+      , 2000
     else
       allRunsUrl = @urlHelper.allSequenceRunsUrl(@state.laraBaseUrl)
       sequenceRun = @state.sequenceId
@@ -197,9 +207,9 @@ App = React.createClass
         url: allRunsUrl
         data: params
         dataType: "jsonp"
-        success: @handleAllSequenceAnswers
+        success: (data) => @handleAllSequenceAnswers(data, callback)
 
-  setStudents: ->
+  setStudents: (callback) ->
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
     pageId = @pageId()
@@ -217,6 +227,8 @@ App = React.createClass
         students: students
         tocStudents: tocStudents
         pageDataTimestamps: @updatedPageDataTimestamps(pageId, timestamp)
+      if callback
+        callback()
 
     if @useFakeData()
       utils.fakeAjax =>
@@ -310,6 +322,7 @@ App = React.createClass
         onClickSummary: @onClickSummary
         onShowStudentDetails: @onShowStudentDetails
         onShowQuestionDetails: @onShowQuestionDetails
+        onClickReload: {all: @requestAllSequenceData, runs: @requestRuns}
         selectedQuestion: @state.selectedQuestion
         selectedStudent: @state.selectedStudent
         setPage: @setPage
