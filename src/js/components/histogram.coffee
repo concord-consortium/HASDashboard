@@ -13,11 +13,14 @@ Histogram = React.createClass
     total = _.reduce(counts, (sum, item) ->
       sum + item
     , 0)
+    keyClasses = "key"
+    if @props.largeLegend == true
+      keyClasses = "#{keyClasses} large"
     (div {className: className},
       _.map(counts, (count, key) ->
         perc = ((count / total) * 100).toFixed(0)
         (div {className:"category score_#{key}"},
-          (div {className:"count" }, key)
+          (div {className:keyClasses }, key)
           (div {className:"percent"}, "#{perc}%")
           (div {className:"bar-box"},
             (div {className:"bar score_#{key}", style: {width: "#{perc}%"}})

@@ -30,6 +30,17 @@ QuestionDetailsReport = React.createClass
     result = _.uniq result, (a) -> if a.groupId? then a.groupId else _.uniqueId('individual-student')
     _.sortBy(result, 'createdAt').reverse()
 
+  getCounts: (answers)->
+    counts = {}
+    if (@props.question.index % 2) == 0
+      counts = { "1":0, "2":0, "3":0, "4":0, "5":0,"6":0 }
+      _.each( _.groupBy(answers, 'score'), (value, key)-> counts[key] = value.length)
+
+    else
+      _.each( _.groupBy(answers, 'answer'), (value, key)-> counts[_.truncate(key,10)] = value.length)
+
+    return counts
+
   getHeader: ->
     if @props.question? then "Question \##{@props.question.index}" else "No question"
 
@@ -38,12 +49,13 @@ QuestionDetailsReport = React.createClass
     className += " hidden-right" if @props.hidden
     answers = @getAnswers()
     max_score = 6
-    counts = { "1":0, "2":0, "3":0, "4":0, "5":0,"6":0 }
-    _.each( _.groupBy(answers, 'score'), (value, key)-> counts[key] = value.length)
+    counts = @getCounts(answers)
+    answers = _.sortBy(answers, 'answer')
     answers = _.sortBy(answers, 'score')
+    largeLegend = (@props.question.index % 2) != 0
     (div {className: className},
       (Scrollable {returnClick: @props.returnClick, header: @getHeader()},
-        (Histogram {counts:counts , colors:{0: 'red', 1: 'blue', 2:'green', 3:'yellow', default: 'gray'}})
+        (Histogram {counts:counts , largeLegend: largeLegend, colors:{0: 'red', 1: 'blue', 2:'green', 3:'yellow', default: 'gray'}})
         if @props.question?
           (div {className: "question-details-content"},
             (div {}, @props.question.prompt)
