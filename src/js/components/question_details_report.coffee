@@ -37,7 +37,10 @@ QuestionDetailsReport = React.createClass
     className = "question-details"
     className += " hidden-right" if @props.hidden
     answers = @getAnswers()
-    counts = _.map(_.groupBy(answers,'score'), (value, key) ->  {value: key, count: value.length})
+    max_score = 6
+    counts = { "1":0, "2":0, "3":0, "4":0, "5":0,"6":0 }
+    _.each( _.groupBy(answers, 'score'), (value, key)-> counts[key] = value.length)
+    answers = _.sortBy(answers, 'score')
     (div {className: className},
       (Scrollable {returnClick: @props.returnClick, header: @getHeader()},
         (Histogram {counts:counts , colors:{0: 'red', 1: 'blue', 2:'green', 3:'yellow', default: 'gray'}})

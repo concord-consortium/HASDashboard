@@ -11,17 +11,17 @@ Histogram = React.createClass
     counts = @props.counts
     colors = @props.colors
     total = _.reduce(counts, (sum, item) ->
-      sum + item.count
+      sum + item
     , 0)
     (div {className: className},
-      _.map(counts, (item) ->
-        perc = ((item.count / total) * 100).toFixed(0)
-        (div {className:"category score_#{item.value}"},
-          (div {className:"count" }, item.value)
-          (div {className:"bar-box"},
-            (div {className:"bar score_#{item.value}", style: {width: "#{perc}%"}})
-          )
+      _.map(counts, (count, key) ->
+        perc = ((count / total) * 100).toFixed(0)
+        (div {className:"category score_#{key}"},
+          (div {className:"count" }, key)
           (div {className:"percent"}, "#{perc}%")
+          (div {className:"bar-box"},
+            (div {className:"bar score_#{key}", style: {width: "#{perc}%"}})
+          )
         )
       )
     )
