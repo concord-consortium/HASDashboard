@@ -31,10 +31,9 @@ SummaryColumnHeader = React.createClass
         clickQuestion = @clickQuestion
         _.map questions, (q,i) ->
           if (i%2 == 0)
-            # TBD: This link isn't working correctly at the moment
-            # Link( {to:"pages/#{pageId}", className: "question-head headerLink", key: q.index, onClick: () -> clickQuestion(q) },
-            (div {}, q.index)
-            # )
+            Link( {to:"pages/#{pageId}", className: "question-head headerLink", key: q.index, onClick: () -> clickQuestion(q) },
+              (div {}, q.index)
+            )
           else
             ""
         (div {className: 'question-head'}, 'try')

@@ -1,4 +1,7 @@
-React = require "react"
+React           = require "react"
+Router          = require 'react-router'
+{ hashHistory } = Router
+
 $ = require "jquery"
 _ = require "lodash"
 
@@ -56,8 +59,6 @@ App = React.createClass
       activity: params.offering
       parameters:
         offering: params.offering
-
-
 
     @reloadInterval = setInterval @requestRuns, REPORT_UPDATE_INTERVAL
 
@@ -263,7 +264,11 @@ App = React.createClass
     @onClickTab(NowShowing.ShowingToc)
 
 
-  onShowStudentDetails: (evt,student)->
+  onShowStudentDetails: (username, pageId)->
+    if pageId
+      hashHistory.push("/pages/#{pageId}")
+    student = _.find @state.students, (s) ->
+      s.username == username
     @logManager.log
       event: "showStudentDetails"
       parameters:

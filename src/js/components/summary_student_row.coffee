@@ -7,22 +7,26 @@ noSubmission = (questions) ->
   answers: _.map questions, -> {}
 
 SummaryStudentRow = React.createClass
-  doClick: (e) ->
-    @props.onClick e, @props.student
+  openStudentPage: (page) ->
+    pageId = page.page
+    if pageId
+      @props.onClick @props.student.username, page.page
 
   render: ->
     student = @props.student
     allSequenceAnswers = student.allSequenceAnswers
     questionPages = @props.questions
     notAnsweredRow = [{},{}]
-    
-    (tr {onClick: @doClick, className: "student_row selectable"},
+    openStudentPage = @openStudentPage
+
+    (tr {className: "student_row selectable"},
       (th {className: "team_name summary"}, student.name),
       _.map questionPages, (page, page_idx) ->
         key = "#{student.name}#{page_idx}"
+        clickHandler = () -> openStudentPage(page)
         page = allSequenceAnswers[page_idx] || {answers: notAnsweredRow}
         (td {className: "answerblock", key: "#{key}-answerblock"},
-          (div {className:"flex-cell", key: "#{key}-cell"},
+          (div {onClick: clickHandler, className:"flex-cell", key: "#{key}-cell"},
             _.map page.answers, (a, idx) ->
               max_score = a.max_score || 6
               score = a.score

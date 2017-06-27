@@ -43,7 +43,7 @@ ModuleSummary = React.createClass
                 key: idx
                 student: student
                 questions: questions
-                onClick: @props.clickStudent
+                onClick: @props.onShowStudentDetails
               )
           )
         )

@@ -29,7 +29,7 @@ SummaryOverlay = React.createClass
           questions: @props.questions
           hidden: @props.hideOverviewReport
           sequence: @props.data.sequence
-          clickStudent: @props.onShowStudentDetails
+          onShowStudentDetails: @props.onShowStudentDetails
           onClickReload: @props.onClickReload?.all
           setPageId: @setPageId
           clickQuestion: @setQuestion

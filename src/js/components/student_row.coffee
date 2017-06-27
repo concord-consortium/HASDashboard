@@ -7,8 +7,8 @@ noSubmission = (questions) ->
   answers: _.map questions, -> {}
 
 StudentRow = React.createClass
-  doClick: (e) ->
-    @props.onClick e, @props.student
+  doClick: ->
+    @props.onClick @props.student.username
 
   render: ->
     student = @props.student
