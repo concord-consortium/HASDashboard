@@ -6,18 +6,23 @@
   font-size 1em
 
   .fixed-header
-    position fixed
-    height 5em
-    margin-left 1em
+    position relative
+    padding: 1em
+    background-color  hsl(0, 10%, 98%)
+    width 100%
     .return
-      font-size .9em
+      font-size: 0.9em
+      background-color hsl(219, 75%, 35%)
+      padding 0.25em
+      border-radius 0.25em
+      color white
+      font-weight bold
       &:hover
+        background-color hsl(219, 50%, 60%)
         cursor pointer
-        color hsl(187,45,20)
     h2
       font-size 1.7em
       margin 0.4em 0
   .scrollable-content
     overflow-y scroll
-    margin-top 5em
     height calc(100% - 5em)

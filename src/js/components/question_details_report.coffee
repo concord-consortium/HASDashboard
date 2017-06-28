@@ -47,7 +47,14 @@ QuestionDetailsReport = React.createClass
     return counts
 
   getHeader: ->
-    if @props.question? then "Question \##{@props.question.index}" else "No question"
+    if @props.question
+      (div {className: "question"},
+        (div {className: "number"},"Question \##{@props.question.index}")
+        (div {className: "prompt"}, @props.question.prompt)
+      )
+    else
+      "No Question"
+
 
   render: ->
     className = "question-details"
@@ -63,7 +70,6 @@ QuestionDetailsReport = React.createClass
         (Histogram {counts:counts , largeLegend: largeLegend, colors:{0: 'red', 1: 'blue', 2:'green', 3:'yellow', default: 'gray'}})
         if @props.question?
           (div {className: "question-details-content"},
-            (div {}, @props.question.prompt)
             (h3 {}, if answers.length > 0 then "Answers" else "No answers")
             _.map answers, (answer) ->
               (div {key: answer.studentName, className: "answer"},

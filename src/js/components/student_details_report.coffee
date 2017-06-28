@@ -12,6 +12,7 @@ StudentDetailsReport = React.createClass
     className = "student-details"
     className += " hidden-right" if @props.hidden
     studentName = @props.student?.name || 'No Student'
+    studentHeader = (div {className: "studentName"}, studentName)
     submissions = _.sortBy(@props.student?.submissions || [], 'created_at').reverse()
     question = {}
     _.each @props.questions, (q) ->
@@ -52,7 +53,7 @@ StudentDetailsReport = React.createClass
         )
 
     (div {className: className},
-      (Scrollable {returnClick: @props.returnClick, header: studentName},
+      (Scrollable {returnClick: @props.returnClick, header: studentHeader},
         for submission, idx in submissions
           renderSubmission submission, submissions.length - idx
       )

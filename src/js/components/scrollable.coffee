@@ -10,7 +10,7 @@ Scrollable = React.createClass
         if @props.returnClick
           (a {className: "return", onClick: @props.returnClick}, "⬅ back")
         if @props.header
-          (h2 {className: "header-text"}, @props.header)
+          @props.header
       )
       (div {className: "scrollable-content"},
         @props.children
