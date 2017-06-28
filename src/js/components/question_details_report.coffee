@@ -37,6 +37,11 @@ QuestionDetailsReport = React.createClass
       _.each( _.groupBy(answers, 'score'), (value, key)-> counts[key] = value.length)
 
     else
+      console.log @props.question
+      choices =  @props.question.choices || []
+      counts = {}
+      _.each choices, (choice) ->
+        counts[_.truncate(choice,10)] = 0
       _.each( _.groupBy(answers, 'answer'), (value, key)-> counts[_.truncate(key,10)] = value.length)
 
     return counts
