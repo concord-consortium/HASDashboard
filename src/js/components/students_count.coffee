@@ -52,7 +52,7 @@ StudentsCount = onClickOutside(React.createClass(
     {showToolTip} = @state
     {setPage, small} = @props
     valueClass = if small then "students-count-value small" else "students-count-value"
-    (div {className: 'students-count-marker'},
+    (div {style:{width:'2em'}},
     # Don't display 0.
       if @props.students.length > 0
         (div {className: 'students-count', onClick: @toggleToolTip.bind(@), onTouchTap: @toggleToolTip.bind(@)},

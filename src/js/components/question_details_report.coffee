@@ -32,18 +32,20 @@ QuestionDetailsReport = React.createClass
 
   getCounts: (answers)->
     counts = {}
+    # Group by score:
     if (@props.question.index % 2) == 0
-      counts = { "1":0, "2":0, "3":0, "4":0, "5":0,"6":0 }
-      _.each( _.groupBy(answers, 'score'), (value, key)-> counts[key] = value.length)
+      counts = { "0":[], "1":[], "2":[], "3":[], "4":[], "5":[],"6":[] }
+      _.each answers, (a) ->
+        counts[a.score].push a.studentName
 
+    # Group by answer
     else
-      console.log @props.question
       choices =  @props.question.choices || []
-      counts = {}
       _.each choices, (choice) ->
-        counts[_.truncate(choice,10)] = 0
-      _.each( _.groupBy(answers, 'answer'), (value, key)-> counts[_.truncate(key,10)] = value.length)
-
+        counts[_.truncate(choice,10)] = []
+      _.each answers, (a) ->
+        answer = _.truncate(a.answer,10)
+        counts[answer].push a.studentName
     return counts
 
   getHeader: ->
@@ -61,13 +63,13 @@ QuestionDetailsReport = React.createClass
     className += " hidden-right" if @props.hidden
     answers = @getAnswers()
     max_score = 6
-    counts = @getCounts(answers)
+    counts  = @getCounts(answers)
     answers = _.sortBy(answers, 'answer')
     answers = _.sortBy(answers, 'score')
     largeLegend = (@props.question.index % 2) != 0
     (div {className: className},
       (Scrollable {returnClick: @props.returnClick, header: @getHeader()},
-        (Histogram {counts:counts , largeLegend: largeLegend, colors:{0: 'red', 1: 'blue', 2:'green', 3:'yellow', default: 'gray'}})
+        (Histogram {classes:counts , largeLegend: largeLegend, colors:{0: 'red', 1: 'blue', 2:'green', 3:'yellow', default: 'gray'}})
         if @props.question?
           (div {className: "question-details-content"},
             (h3 {}, if answers.length > 0 then "Answers" else "No answers")
