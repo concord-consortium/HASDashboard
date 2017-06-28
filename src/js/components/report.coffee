@@ -4,7 +4,7 @@ React      = require 'react'
 _          = require 'lodash'
 StudentRow = React.createFactory require './student_row.coffee'
 ColumnHeader = React.createFactory require './column_header.coffee'
-
+ReloadButton = React.createFactory require './reload_button.coffee'
 {div, table, tbody, th, tr, td} = React.DOM
 
 Report = React.createClass
@@ -48,6 +48,7 @@ Report = React.createClass
     className = "report"
     className = "#{className} hidden-left" if @props.hidden
     (div {className: className},
+      (ReloadButton {onLoadComplete: @props.onClickReload})
       if @props.questions.length > 0
         @renderStudentsTable()
       else

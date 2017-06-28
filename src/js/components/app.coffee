@@ -1,25 +1,22 @@
-React = require 'react'
-$ = require 'jquery'
-_ = require 'lodash'
+React = require "react"
+$ = require "jquery"
+_ = require "lodash"
 
-require '../../css/activity_background.styl'
+require "../../css/activity_background.styl"
 
-ActivityBackround = React.createFactory require './activity_background.coffee'
-NavOverlay        = React.createFactory require './nav_overlay.coffee'
-ReportOverlay     = React.createFactory require './report_overlay.coffee'
-Error             = React.createFactory require './error_alert.coffee'
+ActivityBackround = React.createFactory require "./activity_background.coffee"
+RightOverlay      = React.createFactory require "./right_overlay.coffee"
+NavOverlay        = React.createFactory require "./nav_overlay.coffee"
+Error             = React.createFactory require "./error_alert.coffee"
 
-offeringFakeData  = require '../data/fake_offering.coffee'
-sequenceFakeData  = require '../data/fake_sequence.coffee'
-runsFakeData      = require '../data/fake_runs.coffee'
-dataHelpers       = require '../data/helpers.coffee'
-utils             = require '../utils.coffee'
-UrlHelper         = require '../data/urls.coffee'
-LogManagerHelper  = require '../log_manager_helper.coffee'
-
-ShowingOverview        = "ShowingOverview"
-ShowingStudentDetails  = "ShowingStudentDetails"
-ShowingQuestionDetails = "ShowingQuestionDetails"
+offeringFakeData  = require "../data/fake_offering.coffee"
+sequenceFakeData  = require "../data/fake_sequence.coffee"
+FakeRuns          = require "../data/fake_runs.coffee"
+dataHelpers       = require "../data/helpers.coffee"
+utils             = require "../utils.coffee"
+UrlHelper         = require "../data/urls.coffee"
+LogManagerHelper  = require "../log_manager_helper.coffee"
+NowShowing        = require "../now_showing.coffee"
 
 ACTIVITY_ID_REGEXP = /activities\/(\d+)/
 SEQUENCE_ID_REGEXP = /sequences\/(\d+)/
@@ -39,7 +36,7 @@ App = React.createClass
     sequence: null
     showReport: false
     showNav: true
-    nowShowing: ShowingOverview
+    nowShowing: NowShowing.ShowingToc
     selectedStudent: null
     selectedQuestion: null
     # LARA returns runs data per page, so we need to save timestamps for every single page (hash).
@@ -52,7 +49,7 @@ App = React.createClass
     params = utils.urlParams()
     @setOffering(params.offering)
     @urlHelper = new UrlHelper()
-    @logManager = new LogManagerHelper({offering: params.offering, username: params.username, session: params.token})
+    @logManager = new LogManagerHelper({activity: params.offering, username: params.username, session: params.token})
     # Refresh report.
     @logManager.log
       event: "openReport"
@@ -60,21 +57,30 @@ App = React.createClass
       parameters:
         offering: params.offering
 
-    setInterval =>
-      # Don't call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
-      # https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
-      # If it's not supported, document.hidden will be undefined, but that's fine for our needs.
-      return if document.hidden
-      # Dont need to reload data if we are just generating it randomly
-      return if @useFakeData()
-      # New students can be added to class or their endpoint_url can be updated once
-      # they start an activity.
-      @setOffering(params.offering)
-      @setStudents()
-    , REPORT_UPDATE_INTERVAL
+
+
+    @reloadInterval = setInterval @requestRuns, REPORT_UPDATE_INTERVAL
+
+  requestRuns: (callback) ->
+    # Don"t call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
+    # https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
+    # If it"s not supported, document.hidden will be undefined, but that"s fine for our needs.
+    return if document.hidden
+    # Dont need to reload data if we are just generating it randomly, but simulate network request
+    if @useFakeData()
+      setTimeout callback, 2000
+      return
+    # New students can be added to class or their endpoint_url can be updated once
+    # they start an activity.
+    @setOffering(utils.urlParams().offering)
+    @setStudents(callback)
+
+
+  stopRefreshing: ->
+    clearInterval(@reloadInterval)
 
   componentDidUpdate: (prevProps, prevState) ->
-  # students data depends on students' endpoint URLs and pageId, so when they change, we need to refresh it.
+  # students data depends on students" endpoint URLs and pageId, so when they change, we need to refresh it.
     if !_.isEqual(@state.studentsPortalInfo, prevState.studentsPortalInfo) || @props.params.pageId != prevProps.params.pageId
       @setStudents()
     if (@state.activityId != prevState.activityId) or (@state.sequenceId != prevState.sequenceId)
@@ -86,7 +92,7 @@ App = React.createClass
       dataType: "json"
       timeout: TIMEOUT_MS
       headers:
-        'Authorization': "Bearer #{authToken}"
+        "Authorization": "Bearer #{authToken}"
       error: () => @reportError(opts.url, opts.errorContext,  arguments)
     $.ajax _.assign(defaults, opts)
 
@@ -139,7 +145,7 @@ App = React.createClass
         url: tocUrl
         success: setSequence
         dataType: "jsonp"
-        errorContext: 'loading table of contents'
+        errorContext: "loading table of contents"
 
   reportError: (url, errorContext, errors) ->
     error =
@@ -149,10 +155,14 @@ App = React.createClass
       errorString:  errors?[1]
 
     console?.log?(error)
+    if error.status == 401 || error.status == 403
+      @stopRefreshing()
+
     @logManager.log
       event: "error"
       parameters:
         error: error.errorString
+
     @setState
       error: error
 
@@ -168,25 +178,65 @@ App = React.createClass
     timestampsUpdate[pageId] = newTimestamp
     _.assign({}, @state.pageDataTimestamps, timestampsUpdate)
 
-  setStudents: ->
+
+  handleAllSequenceAnswers: (data, callback) ->
+    # data = dataHelpers.toLatestVersion(data)
+    runs = data.runs
+    timestamp = data.timestamp
+    allSequenceAnswers = dataHelpers.mergeAllSequenceAnswers(runs, @state.studentsPortalInfo)
+    @setState
+      allSequenceAnswers: allSequenceAnswers
+    if callback
+      callback()
+
+  requestAllSequenceData: (callback) ->
+    if @useFakeData()
+      setTimeout ()=>
+        allSequenceAnswers = FakeRuns.allSequenceAnswers(@state.studentsPortalInfo, @state.sequence)
+        @handleAllSequenceAnswers({runs: allSequenceAnswers}, callback)
+      , 2000
+    else
+      allRunsUrl = @urlHelper.allSequenceRunsUrl(@state.laraBaseUrl)
+      sequenceRun = @state.sequenceId
+      params =
+        endpoint_urls: dataHelpers.getEndpointUrls(@state.studentsPortalInfo)
+        submissions_created_after: 0 # TODO: @getPageDataTimestamp('sequence')
+      if sequenceRun?
+        params['sequence_runs'] = true
+      @apiCall
+        url: allRunsUrl
+        data: params
+        dataType: "jsonp"
+        success: (data) => @handleAllSequenceAnswers(data, callback)
+
+  setStudents: (callback) ->
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
     pageId = @pageId()
+
+
     handleRunsData = (data) =>
       data = dataHelpers.toLatestVersion(data)
       runs = data.runs
       timestamp = data.timestamp
       students = dataHelpers.getStudentsData(runs, @state.studentsPortalInfo, pageId)
       tocStudents = dataHelpers.getTocStudents(runs, @state.studentsPortalInfo)
+      if !@state.allSequenceAnswers
+        @requestAllSequenceData()
       @setState
         students: students
         tocStudents: tocStudents
         pageDataTimestamps: @updatedPageDataTimestamps(pageId, timestamp)
+      if callback
+        callback()
 
     if @useFakeData()
       utils.fakeAjax =>
         if @state.sequence
-          handleRunsData(runsFakeData(@state.studentsPortalInfo, @getQuestions(), @state.sequence))
+          fakeRuns = FakeRuns.fakeRuns(@state.studentsPortalInfo, @getQuestions(), @state.sequence)
+          handleRunsData(fakeRuns)
+          @requestAllSequenceData()
+
     else
       dashRunsUrl = @urlHelper.dashRunsUrl(@state.laraBaseUrl)
       @apiCall
@@ -198,19 +248,20 @@ App = React.createClass
         dataType: "jsonp"
         success: handleRunsData
 
-  toggleReport: ->
-    showReportNext = not @state.showReport
-    showNavNext    = @state.showNav and (not showReportNext)
+  onClickTab: (toShow, alternate=NowShowing.ShowingNothing) ->
+    nextShowing = if @state.nowShowing != toShow then  toShow else alternate
     @setState
-      showReport: showReportNext
-      showNav: showNavNext
+      nowShowing: nextShowing
 
-  toggleNav: ->
-    showNavNext    = not @state.showNav
-    showReportNext = @state.showReport and (not showNavNext)
-    @setState
-      showReport: showReportNext
-      showNav: showNavNext
+  onClickPageReport: ->
+    @onClickTab(NowShowing.ShowingPageReport)
+
+  onClickSummary: ->
+    @onClickTab(NowShowing.ShowingSummary)
+
+  onClickNav: ->
+    @onClickTab(NowShowing.ShowingToc)
+
 
   onShowStudentDetails: (evt,student)->
     @logManager.log
@@ -220,7 +271,7 @@ App = React.createClass
         id: student.id
     @setState
       selectedStudent: student
-      nowShowing: ShowingStudentDetails
+      nowShowing: NowShowing.ShowingStudentDetails
 
   onShowQuestionDetails: (evt,question)->
     @logManager.log
@@ -230,11 +281,7 @@ App = React.createClass
         questionPrompt: question.prompt
     @setState
       selectedQuestion: question
-      nowShowing: ShowingQuestionDetails
-
-  onShowOverview: ->
-    @setState
-      nowShowing: ShowingOverview
+      nowShowing: NowShowing.ShowingQuestionDetails
 
   setPage: (page) ->
     props = page.props
@@ -245,7 +292,6 @@ App = React.createClass
         id: props.id
         hasQuestion: props.hasQuestion
     @setState
-      nowShowing: ShowingOverview
       selectedQuestion: null
       selectedStudent: null
 
@@ -266,30 +312,27 @@ App = React.createClass
 
   render: ->
     page = @getCurrentPage()
-
     (div {className: "app"},
       (ActivityBackround
         pageUrl: if page then "#{@state.laraBaseUrl}/#{page.url}" else null
       )
-      (ReportOverlay
-        opened: @state.showReport
-        toggle: @toggleReport
+      (RightOverlay
+        nowShowing: @state.nowShowing
+        onClickPageReport: @onClickPageReport
+        onClickSummary: @onClickSummary
         onShowStudentDetails: @onShowStudentDetails
         onShowQuestionDetails: @onShowQuestionDetails
-        onShowOverview: @onShowOverview
-
-        hideOverviewReport: @state.nowShowing isnt ShowingOverview
-        hideStudentDetailsReport: @state.nowShowing isnt ShowingStudentDetails
-        hideQuestionDetailsReport: @state.nowShowing isnt ShowingQuestionDetails
-
+        onClickReload: {all: @requestAllSequenceData, runs: @requestRuns}
         selectedQuestion: @state.selectedQuestion
         selectedStudent: @state.selectedStudent
+        setPage: @setPage
         data: @state
         questions: @getQuestions()
       )
+
       (NavOverlay
-        opened: @state.showNav
-        toggle: @toggleNav
+        opened: @state.nowShowing == NowShowing.ShowingToc
+        toggle: @onClickNav
         sequence: @state.sequence
         students: @state.tocStudents
         setPage: @setPage

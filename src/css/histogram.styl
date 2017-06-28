@@ -1,0 +1,50 @@
+
+div.histogram
+  color: black
+  display: flex
+  flex-direction: column
+  flex-wrap: nowrap
+  justify-content: flex-start
+  align-content: flex-start
+  margin: 2em
+  font-size: 14pt
+  div.category
+    display: flex
+    flex-direction: row
+    flex-wrap: nowrap
+    justify-content: flex-start
+    align-items: center
+    border-bottom: 1px solid hsla(0,0%,90%,0.2)
+    div.key
+      width: 4em
+      &.large
+        width: 30%
+        font-size: 9pt
+    div.percent
+      width: 4em
+    div.bar-box
+      flex-grow: 4
+    div.bar
+      height: 1.3em
+      background-color: gray
+
+      &.score_0
+        background-color hsl(0,0,0)
+
+      &.score_1
+        background-color hsl(354,100, 33)
+
+      &.score_2
+        background-color hsl(16, 73, 56)
+
+      &.score_3
+        background-color hsl(42, 90, 55)
+
+      &.score_4
+        background-color hsl(68, 65, 50)
+
+      &.score_5
+        background-color hsl(86, 63, 55)
+
+      &.score_6
+        background-color hsl(90, 42, 46)

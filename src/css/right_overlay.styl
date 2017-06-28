@@ -1,0 +1,63 @@
+@require 'mixins'
+
+reportHeight = 100vh
+reportWidth  = 50vw
+summaryWidth = 93vw
+
+.right-overlay
+  color white
+  font-size 1em
+  font-family 'Open Sans', helvetica, arial, sans-serif
+  overlay()
+  position: absolute
+  display: flex
+  flex-direction: row
+  justify-content: flex-end
+  right: 0px
+  background: none
+  margin: 0px
+  padding: 0px
+  top: 0px
+  animatedSlide()
+  .tabs
+    cursor pointer
+    font-size 1.25em
+    top reportHeight * 0.5
+    display: flex
+    flex-direction: row
+    align-content: space-around
+    padding: 0px
+    margin: 0px
+    background: none
+    position: absolute;
+    white-space: nowrap;
+    top: 0;
+    right: 100%;
+    text-align: right;
+    -webkit-transform-origin: 100% 100%;
+    -webkit-transform: rotate(-90deg);
+    transform-origin: 100% 100%;
+    transform: rotate(-90deg);
+    .tab
+      shadow()
+      border-radius: 6px 6px 0px 0px
+      background-color:hsl(210, 60%, 30%)
+      color: hsl(0,0%,80%)
+      padding: 0.25em
+      margin: 0.25em
+      margin-bottom: 0px
+      &.open
+        background-color:hsl(210, 76%, 36%)
+        color: white
+  .content
+    height reportHeight
+    background-color:hsl(210, 76%, 36%)
+    width: 0vw
+    margin-left: -1px
+    animatedSlide()
+  &.ShowingSummary
+    .content
+      width summaryWidth
+  &.ShowingPageReport
+    .content
+      width reportWidth

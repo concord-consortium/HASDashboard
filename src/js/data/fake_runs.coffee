@@ -40,17 +40,42 @@ getAnswers = (questions) ->
     results.push answer
   results
 
-module.exports = (students, questions, sequence) ->
-
-  activities = _.map sequence.activities, (activity) ->
-    pages = activity.pages
+# Random fake runs. (different for each page change)
+exports.fakeRuns = (students, questions, sequence) ->
+  runs = _.map sequence.activities, (activity) ->
     _.map students, (s) ->
       endpoint_url: s.endpoint_url
-      last_page_id: _.sample(pages).id
+      last_page_id: _.sample(activity.pages).id
       group_id: getGroupId()
       submissions: getSubmissions(questions)
       sequence_id: sequence.id
       updated_at:  _.now() - _.random(0, 1000000)
-      page_ids: _.map pages, 'id'
+      page_ids: _.map activity.pages, 'id'
+  _.flatten(runs)
 
-  _.flatten(activities)
+
+# Return data structured the same as the API call
+# that we will make. See README.md
+exports.allSequenceAnswers = (students, sequence) ->
+  emptyAnswer = {answers: []}
+  generateFakeRun = (student) ->
+    endpoint_url = student.endpoint_url
+    answers = _.flatMap sequence.activities, (act, actIndex) ->
+      questionPages = _.filter(act.pages, (page) -> page.questions.length > 0)
+      _.map questionPages, (page, pageIndex) ->
+        submissions = getSubmissions(page.questions)
+        tryCount = submissions.length
+        answers = (_.last(submissions) || emptyAnswer).answers
+        return {
+          page: page.name
+          pageId: page.id
+          pageIndex: pageIndex
+          tryCount: tryCount
+          numQuestions: page.questions.length
+          answers: answers
+        }
+    return {
+      endpoint_url: endpoint_url,
+      answers: answers
+    }
+  return _.map(students, generateFakeRun)

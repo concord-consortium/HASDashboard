@@ -6,7 +6,6 @@ React = require('react')
 {iframe, div} = React.DOM
 
 ActivityBackround = React.createClass
-
   getDefaultProps: ->
     pageUrl: "http://authoring.concord.org/activities/3857"
 
