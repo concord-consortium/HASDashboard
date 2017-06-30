@@ -4,13 +4,7 @@ selectable_row(hue=20)
   tr:nth-child(2n)
     background-color hsl(hue,0,93)
 
-  tr
-    &.selectable
-      th
-        text-align right
-      &:hover
-        background-color: hsl(48,82,87)
-        color #3a878b
+
 
 .module-summary
   padding: 4px;
@@ -45,6 +39,10 @@ selectable_row(hue=20)
     font-size 14px
     text-align right
     overflow: auto
+    tr
+      &.right
+        th
+          text-align right
     th
       font-weight 500
       text-align center
@@ -66,8 +64,17 @@ selectable_row(hue=20)
       border-right: 1px solid black
       // border-left: 1px solid black
       a.headerLink
-        color:black
-        text-decoration: none;
+        display inline-block
+        text-decoration: none
+        background-color hsl(210, 75%, 35%)
+        color white
+        padding 0.15em
+        border-radius 1em
+        box-shadow 1px 1px 3px hsla(0,0%,40%,0.5)
+        &:hover
+            background-color hsl(219, 50%, 60%)
+            cursor pointer
+
 
     .marker
       box-sizing border-box

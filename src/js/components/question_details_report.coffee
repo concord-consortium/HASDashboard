@@ -45,6 +45,7 @@ QuestionDetailsReport = React.createClass
         counts[_.truncate(choice,10)] = []
       _.each answers, (a) ->
         answer = _.truncate(a.answer,10)
+        counts[answer] ||= []
         counts[answer].push a.studentName
     return counts
 

@@ -15,8 +15,9 @@ SummaryStudentRow = React.createClass
     allSequenceAnswers = student.allSequenceAnswers
     questionPages = @props.questions
     notAnsweredRow = [{},{}]
-    
-    (tr {onClick: @doClick, className: "student_row selectable"},
+
+    # (tr {onClick: @doClick, className: "student_row selectable"},
+    (tr {className: "student_row right"},
       (th {className: "team_name summary"}, student.name),
       _.map questionPages, (page, page_idx) ->
         key = "#{student.name}#{page_idx}"
