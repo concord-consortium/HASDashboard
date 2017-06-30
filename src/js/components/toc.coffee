@@ -12,21 +12,21 @@ Toc = React.createClass
     currentPageId: null
 
   setPage: (page) ->
-    @props.setPage page
+    @props.navigationManager.setPage page
 
   handleActivityClick: (e, id) ->
     e.preventDefault()
     @props.selectActivity(id)
 
-
   render: ->
-    currentPageId = @props.pageId
-    {sequence, students, selectedActivity, selectActivity} = @props
+    navigationManager = @props.navigationManager
+    currentPageId = navigationManager.pageId
+    {sequence, students} = @props
     return (div {}) unless sequence?
     pageStudents = getPageStudents students
     activityStudents = getActivityStudents sequence.activities, pageStudents
     acts = _.map sequence.activities, (activity, act_indx) =>
-      actSelected = selectedActivity == activity.id
+      actSelected = @props.activity == activity.id
       className = if actSelected then "activity" else "activity hidden"
       name = _.truncate "#{act_indx + 1}: #{activity.name}", {length: 36, ommission: " …" }
       (div {className: className, key:activity.id},
@@ -78,11 +78,10 @@ QuestionMarker = React.createFactory React.createClass
 
 
 PageLink = React.createFactory React.createClass
-
   render: ->
     className = "page-link"
     className += " current" if @props.current
-    Link({to:"pages/#{@props.id}", className: className, onClick: => @props.setPage(@) },
+    div({className: className, onClick: => @props.setPage(@props) },
       (div {className: 'number'},"#{@props.index}.")
       (div {className: 'name'}, @props.name or "Page #{@props.index}")
     )

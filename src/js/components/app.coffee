@@ -20,6 +20,9 @@ utils             = require "../utils.coffee"
 UrlHelper         = require "../data/urls.coffee"
 LogManagerHelper  = require "../log_manager_helper.coffee"
 NowShowing        = require "../now_showing.coffee"
+Navigation        = require "../navigation_manager.coffee"
+
+{NavigationManager} = Navigation
 
 ACTIVITY_ID_REGEXP = /activities\/(\d+)/
 SEQUENCE_ID_REGEXP = /sequences\/(\d+)/
@@ -39,13 +42,12 @@ App = React.createClass
     sequence: null
     showReport: false
     showNav: true
-    nowShowing: NowShowing.ShowingToc
     selectedStudent: null
     selectedQuestion: null
     # LARA returns runs data per page, so we need to save timestamps for every single page (hash).
     pageDataTimestamps: {}
 
-  componentDidMount: ->
+  componentWillMount: ->
     # Look for ?offering= parameter and use it to get the offering information.
     # If param is not provided, we will load fake offering data (from `data/offering.coffee`).
     # Note that you can replace data/offering.coffee content to point to real LARA instance.
@@ -59,7 +61,7 @@ App = React.createClass
       activity: params.offering
       parameters:
         offering: params.offering
-
+    @navigationManager = new NavigationManager(@logManager, @props.params)
     @reloadInterval = setInterval @requestRuns, REPORT_UPDATE_INTERVAL
 
   requestRuns: (callback) ->
@@ -213,7 +215,7 @@ App = React.createClass
   setStudents: (callback) ->
     # Wait till we have both page ID and studentsPortalInfo list.
     return if @state.pageId == null || @state.studentsPortalInfo.length == 0
-    pageId = @pageId()
+    pageId = @navigationManager.pageId
 
 
     handleRunsData = (data) =>
@@ -249,71 +251,17 @@ App = React.createClass
         dataType: "jsonp"
         success: handleRunsData
 
-  onClickTab: (toShow, alternate=NowShowing.ShowingNothing) ->
-    nextShowing = if @state.nowShowing != toShow then  toShow else alternate
-    @setState
-      nowShowing: nextShowing
-
-  onClickPageReport: ->
-    @onClickTab(NowShowing.ShowingPageReport)
-
-  onClickSummary: ->
-    @onClickTab(NowShowing.ShowingSummary)
-
-  onClickNav: ->
-    @onClickTab(NowShowing.ShowingToc)
-
-
-  onShowStudentDetails: (username, pageId)->
-    if pageId
-      hashHistory.push("/pages/#{pageId}")
-    student = _.find @state.students, (s) ->
-      s.username == username
-    @logManager.log
-      event: "showStudentDetails"
-      parameters:
-        name: student.name
-        id: student.id
-    @setState
-      selectedStudent: student
-      nowShowing: NowShowing.ShowingStudentDetails
-
-  onShowQuestionDetails: (evt,question)->
-    @logManager.log
-      event: "showQuestionDetails"
-      parameters:
-        questionIndex: question.index
-        questionPrompt: question.prompt
-    @setState
-      selectedQuestion: question
-      nowShowing: NowShowing.ShowingQuestionDetails
-
-  setPage: (page) ->
-    props = page.props
-    @logManager.log
-      event: "setPage"
-      parameters:
-        name: props.name
-        id: props.id
-        hasQuestion: props.hasQuestion
-    @setState
-      selectedQuestion: null
-      selectedStudent: null
-
-  pageId: ->
-    parseInt(@props.params.pageId)
-
   getCurrentPage: ->
     pages = @state.sequence?.activities.map (a) -> a.pages
     pages = _.flatten pages
-    _.find pages, (p) => p.id == @pageId()
+    _.find pages, (p) => p.id == @navigationManager.pageId
 
   getQuestions: ->
     return [] unless @state.sequence
     @getCurrentPage()?.questions || []
 
   data: ->
-    _.assign({}, @state, {pageId: @pageId()})
+    _.assign({}, @state, {pageId: @navigationManager.pageId})
 
   render: ->
     page = @getCurrentPage()
@@ -322,7 +270,7 @@ App = React.createClass
         pageUrl: if page then "#{@state.laraBaseUrl}/#{page.url}" else null
       )
       (RightOverlay
-        nowShowing: @state.nowShowing
+        nowShowing: @navigationManager.nowShowing
         onClickPageReport: @onClickPageReport
         onClickSummary: @onClickSummary
         onShowStudentDetails: @onShowStudentDetails
@@ -336,12 +284,9 @@ App = React.createClass
       )
 
       (NavOverlay
-        opened: @state.nowShowing == NowShowing.ShowingToc
-        toggle: @onClickNav
+        navigationManager: @navigationManager
         sequence: @state.sequence
         students: @state.tocStudents
-        setPage: @setPage
-        pageId: @pageId()
       )
       (Error {error: @state.error}) if @state.error
     )

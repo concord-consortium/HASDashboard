@@ -3,12 +3,20 @@ require '../../css/nav_overlay.styl'
 React    = require 'react'
 Openable = require './mixins/openable.coffee'
 Toc      = React.createFactory require './toc.coffee'
+Navigation = require '../navigation_manager.coffee'
 
 {div} = React.DOM
 
 Nav = React.createClass
 
-  mixins: [Openable]
+  className: (previousClassName="fixMe") ->
+    console.log @props.navigationManager.nowShowing
+    console.log Navigation.ShowingToc
+    if @props.navigationManager.nowShowing==Navigation.ShowingToc
+      "#{previousClassName} open"
+    else
+      previousClassName
+
   getInitialState: ->
     activity: null
 
@@ -27,25 +35,20 @@ Nav = React.createClass
           @setState
             activity: found.id
 
-
-
   render: ->
+    actions = {
+      selectActivity: (act_id) =>
+        if act_id is @state.activity
+          @setState(activity: null)
+        else
+          @setState(activity: act_id)
+    }
+    tocProps = _.assign({}, @props, @state, actions)
+    clickNavTab = @props.navigationManager.onClickNav.bind(@props.navigationManager)
     (div {className:"nav_overlay shadow"},
-      (div {className: @className("tab"), onClick: @props.toggle}, "TOC")
+      (div {className: @className("tab"), onClick: clickNavTab}, "TOC")
       (div {className: @className("content")},
-        (Toc {
-          sequence: @props.sequence
-          students: @props.students
-          setPage: @props.setPage
-          pageId: @props.pageId
-          selectedActivity: @state.activity
-          selectActivity: (act_id) =>
-            if act_id is @state.activity
-              @setState(activity: null)
-            else
-              @setState(activity: act_id)
-          }
-        )
+        (Toc tocProps)
       )
     )
 

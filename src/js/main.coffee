@@ -24,7 +24,12 @@ $(document).ready (event) ->
   ReactDOM.render(
     Router({history: hashHistory},
       Route( {path: "/", component: App},
-        Route( {path: "pages/:pageId", component: App})
+        Route( {path: "nowShowing/:nowShowing", component: App}
+          Route( {path: "pages/:pageId", component: App},
+            Route( {path: "questions/:questionId", component: App})
+            Route( {path: "students/:studentUsername", component: App})
+          )
+        )
       )
     ), elm
   )
