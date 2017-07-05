@@ -32,15 +32,21 @@ QuestionDetailsReport = React.createClass
 
   getCounts: (answers)->
     counts = {}
+    cRaterScored = "C Rater Scored Question"
+    mcQuestion = "Multiple Choice Question"
+    questionType = cRaterScored
+    question = @props.question
+    if question.choices?.length > 0
+      questionType = mcQuestion
     # Group by score:
-    if (@props.question.index % 2) == 0
+    if questionType == cRaterScored
       counts = { "0":[], "1":[], "2":[], "3":[], "4":[], "5":[],"6":[] }
       _.each answers, (a) ->
         counts[a.score].push a.studentName
 
     # Group by answer
-    else
-      choices =  @props.question.choices || []
+    if questionType == mcQuestion
+      choices =  question.choices || []
       _.each choices, (choice) ->
         counts[_.truncate(choice,10)] = []
       _.each answers, (a) ->

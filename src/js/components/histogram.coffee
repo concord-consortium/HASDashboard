@@ -26,7 +26,7 @@ Histogram = React.createClass
     (div {className: className},
       _.map(classes, (count, key) =>
         perc = ((count.length / total) * 100).toFixed(0)
-        (div {className:"category score_#{key}"},
+        (div {className:"category score_#{key}", key: key},
           (div {className:keyClasses }, key)
           @renderHead(count)
           (div {className:"percent"}, "#{perc}%")
