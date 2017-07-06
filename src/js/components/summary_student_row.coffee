@@ -21,7 +21,7 @@ SummaryStudentRow = React.createClass
       (th {className: "team_name summary"}, student.name),
       _.map questionPages, (page, page_idx) ->
         key = "#{student.name}#{page_idx}"
-        page = allSequenceAnswers[page_idx] || {answers: notAnsweredRow}
+        page = allSequenceAnswers[page.pageId] || {answers: notAnsweredRow}
         (td {className: "answerblock", key: "#{key}-answerblock"},
           (div {className:"flex-cell", key: "#{key}-cell"},
             _.map page.answers, (a, idx) ->

@@ -83,19 +83,24 @@ getBasicStudentData = (runs, studentsPortalInfo) ->
 exports.mergeAllSequenceAnswers = (runs, studentsPortalInfo) ->
   runByEndpoint = {}
   _.each runs, (r) ->
-    runs = runByEndpoint[r.endpoint_url] || []
-    runByEndpoint[r.endpoint_url] = _.concat(runs, r)
+    runByEndpoint[r.endpoint_url] ||= []
+    runByEndpoint[r.endpoint_url].push(r)
   studentByNameCount = {}
   _.each studentsPortalInfo, (s) ->
     studentByNameCount[s.name] ||= 0
     studentByNameCount[s.name] += 1
   _.map studentsPortalInfo, (student) ->
-    runs = runByEndpoint[student.endpoint_url] || []
+    _runs = runByEndpoint[student.endpoint_url] || []
+    allSequenceAnswers = {}
+    _.each _runs, (run) ->
+      if run.answers
+        _.map run.answers, (a) ->
+          allSequenceAnswers[a.page] = a
     {
       # Handle case when multiple students have the same name. Add unique username.
       name: if studentByNameCount[student.name] == 1 then student.name else "#{student.name} (#{student.username})"
       username: student.username
-      allSequenceAnswers: _.flatten(_.map(runs,'answers'))
+      allSequenceAnswers: allSequenceAnswers
     }
 
 
