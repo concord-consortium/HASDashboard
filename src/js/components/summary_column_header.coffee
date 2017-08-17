@@ -33,11 +33,11 @@ SummaryColumnHeader = React.createClass
           if (i%2 == 0)
             # TBD: This link isn't working correctly at the moment
             # Link( {to:"pages/#{pageId}", className: "question-head headerLink", key: q.index, onClick: () -> clickQuestion(q) },
-            (div {}, q.index)
+            (div {}, q.index+1)
             # )
           else
             ""
-        (div {className: 'question-head'}, 'try')
+        (div {className: 'question-head'}, 'Tries')
       )
 
     )
