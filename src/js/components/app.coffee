@@ -20,8 +20,8 @@ NowShowing        = require "../now_showing.coffee"
 
 ACTIVITY_ID_REGEXP = /activities\/(\d+)/
 SEQUENCE_ID_REGEXP = /sequences\/(\d+)/
-REPORT_UPDATE_INTERVAL = 15000 # ms
-TIMEOUT_MS = 10000
+REPORT_UPDATE_INTERVAL = 20 * 1000 # ~ 20s
+TIMEOUT_MS = 15 * 1000 # ~15s timeout.
 
 {div} = React.DOM
 
@@ -47,7 +47,7 @@ App = React.createClass
     # If param is not provided, we will load fake offering data (from `data/offering.coffee`).
     # Note that you can replace data/offering.coffee content to point to real LARA instance.
     params = utils.urlParams()
-    @setOffering(params.offering)
+    @setOffering()
     @urlHelper = new UrlHelper()
     @logManager = new LogManagerHelper({activity: params.offering, username: params.username, session: params.token})
     # Refresh report.
@@ -56,10 +56,7 @@ App = React.createClass
       activity: params.offering
       parameters:
         offering: params.offering
-
-
-
-    @reloadInterval = setInterval @requestRuns, REPORT_UPDATE_INTERVAL
+    @startPolling()
 
   requestRuns: (callback) ->
     # Don"t call LARA API if page is inactive. document.hidden is part of the Page Visibility API:
@@ -72,12 +69,17 @@ App = React.createClass
       return
     # New students can be added to class or their endpoint_url can be updated once
     # they start an activity.
-    @setOffering(utils.urlParams().offering)
+    @setOffering()
     @setStudents(callback)
 
+  startPolling: ->
+    @stopPolling()
+    @reloadInterval = setInterval @requestRuns, REPORT_UPDATE_INTERVAL
 
-  stopRefreshing: ->
-    clearInterval(@reloadInterval)
+  stopPolling: ->
+    if(@reloadInterval)
+      clearInterval(@reloadInterval)
+      @reloadInterval = null
 
   componentDidUpdate: (prevProps, prevState) ->
   # students data depends on students" endpoint URLs and pageId, so when they change, we need to refresh it.
@@ -93,12 +95,16 @@ App = React.createClass
       timeout: TIMEOUT_MS
       headers:
         "Authorization": "Bearer #{authToken}"
-      error: () => @reportError(opts.url, opts.errorContext,  arguments)
+      error: () =>
+        @handleError(opts.url, opts.errorContext,  arguments)
+        if(opts.errorCallback)
+          opts.errorCallback()
     $.ajax _.assign(defaults, opts)
 
 
-  setOffering: (offeringUrl) ->
-
+  setOffering: () ->
+    params = utils.urlParams()
+    offeringUrl = params.offering
     _setOffering = (data) =>
       activityId = null
       sequenceId = null
@@ -112,7 +118,7 @@ App = React.createClass
         laraBaseUrl: utils.baseUrl(data.activity_url)
         activityId: activityId
         sequenceId: sequenceId
-
+        error: null
     if offeringUrl
       @apiCall
         url: offeringUrl
@@ -129,7 +135,7 @@ App = React.createClass
       @setState
         sequence: sequence
         pageId: firstPage.id
-
+        error: null
     if @useFakeData()
       utils.fakeAjax =>
         data = sequenceFakeData(@state.activityId)
@@ -147,7 +153,7 @@ App = React.createClass
         dataType: "jsonp"
         errorContext: "loading table of contents"
 
-  reportError: (url, errorContext, errors) ->
+  handleError: (url, errorContext, errors) ->
     error =
       url: url
       errorContext: errorContext
@@ -155,8 +161,8 @@ App = React.createClass
       errorString:  errors?[1]
 
     console?.log?(error)
-    if error.status == 401 || error.status == 403
-      @stopRefreshing()
+    if error.status == 401 || error.status == 403 || error.errorString == "timeout"
+      @stopPolling()
 
     @logManager.log
       event: "error"
@@ -208,6 +214,7 @@ App = React.createClass
         data: params
         dataType: "jsonp"
         success: (data) => @handleAllSequenceAnswers(data, callback)
+        errorCallback: callback
 
   setStudents: (callback) ->
     # Wait till we have both page ID and studentsPortalInfo list.
@@ -241,6 +248,7 @@ App = React.createClass
       dashRunsUrl = @urlHelper.dashRunsUrl(@state.laraBaseUrl)
       @apiCall
         url: dashRunsUrl
+        errorCallback: callback
         data:
           page_id: pageId,
           endpoint_urls: dataHelpers.getEndpointUrls(@state.studentsPortalInfo)
@@ -312,6 +320,17 @@ App = React.createClass
 
   render: ->
     page = @getCurrentPage()
+    reloadAll = (callback) =>
+      @requestAllSequenceData(callback)
+
+    reloadRuns = (callback) =>
+      if(!@state.sequenceId)
+        @setOffering()
+      else
+        @setSequence()
+        @requestRuns(callback)
+      @startPolling()
+
     (div {className: "app"},
       (ActivityBackround
         pageUrl: if page then "#{@state.laraBaseUrl}/#{page.url}" else null
@@ -322,7 +341,7 @@ App = React.createClass
         onClickSummary: @onClickSummary
         onShowStudentDetails: @onShowStudentDetails
         onShowQuestionDetails: @onShowQuestionDetails
-        onClickReload: {all: @requestAllSequenceData, runs: @requestRuns}
+        onClickReload: {all: reloadAll, runs: reloadRuns}
         selectedQuestion: @state.selectedQuestion
         selectedStudent: @state.selectedStudent
         setPage: @setPage
@@ -338,7 +357,7 @@ App = React.createClass
         setPage: @setPage
         pageId: @pageId()
       )
-      (Error {error: @state.error}) if @state.error
+      (Error {error: @state.error, onClickReload: reloadRuns }) if @state.error
     )
 
 

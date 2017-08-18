@@ -1,13 +1,16 @@
 React = require "react"
 {div} = React.DOM
 
+ReloadButton = React.createFactory require "./reload_button.coffee"
 
 module.exports = React.createClass
   displayName: "ErrorAlert"
-  message: () ->
+  needLogin: () ->
     {error} = @props
-    needLogin = error.status == 401 || error.status == 403
-    if needLogin
+    return error.status == 401 || error.status == 403
+
+  message: () ->
+    if @needLogin()
       "  You have been logged out of the portal.
          Please close this window, login to the portal, and re-launch your report.
       "
@@ -45,5 +48,7 @@ module.exports = React.createClass
         (div {style: contentStyle},
           @message()
         )
+        if(!@needLogin())
+          (ReloadButton {onLoadComplete: @props.onClickReload})
       )
     )
