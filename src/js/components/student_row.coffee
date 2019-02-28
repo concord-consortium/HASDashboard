@@ -26,6 +26,8 @@ StudentRow = React.createClass
         if score?
           className += " score_#{score} max_score_#{max_score}"
           scoreDiv = (span {className: "score_#{score}"}, "#{score}")
+        else if a.feedback_type is "CRater::FeedbackItem" and a.feedback?
+          scoreDiv = (span {title: a.feedback}, "*")
         else
           scoreDiv = (span {}, "")
         (td {key: student.name + idx},

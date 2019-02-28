@@ -34,9 +34,11 @@ getAnswers = (questions) ->
       answer: answerText
       feedback: "feedback text from c-rater here"
       feedback_type: feedbackType
-      score: _.random maxScore
       max_score: maxScore
     }
+    # 10% of the time don't set a score so we can see the * in the report
+    if _.random(1, 10) < 9
+      answer.score = _.random maxScore
     results.push answer
   results
 
