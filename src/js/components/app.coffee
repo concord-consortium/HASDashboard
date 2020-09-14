@@ -20,8 +20,8 @@ NowShowing        = require "../now_showing.coffee"
 
 ACTIVITY_ID_REGEXP = /activities\/(\d+)/
 SEQUENCE_ID_REGEXP = /sequences\/(\d+)/
-REPORT_UPDATE_INTERVAL = 60 * 1000 # ~ 1 minute
-TIMEOUT_MS = 40 * 1000 # ~40s timeout.
+REPORT_UPDATE_INTERVAL = 120 * 1000 # ~ 2 minutes
+TIMEOUT_MS = 80 * 1000 # ~80s timeout.
 
 {div} = React.DOM
 
